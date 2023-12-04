@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "OLnUxKklepSt4E3PobZohMFvsr1LzRPUW6kD2fPa0ik=",
+  "Source": "PCP_AspNet_Back",
+  "BasePath": "_content/PCP_AspNet_Back",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

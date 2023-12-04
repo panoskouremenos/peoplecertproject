@@ -1,0 +1,6 @@
+@PCP_AspNet_Back_HostAddress = http://localhost:5177
+
+GET {{PCP_AspNet_Back_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/PCP_AspNet_Back.props" />
+</Project>
