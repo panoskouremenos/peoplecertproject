@@ -2234,19 +2234,19 @@
     ]
   },
   "packageFolders": {
-    "/root/.nuget/packages/": {}
+    "/home/dimos/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/var/www/peoplecertplus/PCP_AspNet_Back/PCP_AspNet_Back.csproj",
+      "projectUniqueName": "/home/dimos/peoplecertproject/PCP_AspNet_Back/PCP_AspNet_Back.csproj",
       "projectName": "PCP_AspNet_Back",
-      "projectPath": "/var/www/peoplecertplus/PCP_AspNet_Back/PCP_AspNet_Back.csproj",
-      "packagesPath": "/root/.nuget/packages/",
-      "outputPath": "/var/www/peoplecertplus/PCP_AspNet_Back/obj/",
+      "projectPath": "/home/dimos/peoplecertproject/PCP_AspNet_Back/PCP_AspNet_Back.csproj",
+      "packagesPath": "/home/dimos/.nuget/packages/",
+      "outputPath": "/home/dimos/peoplecertproject/PCP_AspNet_Back/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/root/.nuget/NuGet/NuGet.Config"
+        "/home/dimos/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
