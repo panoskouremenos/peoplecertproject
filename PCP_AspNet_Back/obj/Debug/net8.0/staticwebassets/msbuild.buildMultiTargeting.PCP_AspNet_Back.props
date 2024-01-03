@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../build/PCP_AspNet_Back.props" />
-</Project>
