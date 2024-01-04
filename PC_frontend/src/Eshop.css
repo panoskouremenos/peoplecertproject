@@ -1,0 +1,123 @@
+#eshop .card:hover:not(.bought){
+    border:1px solid orangered;
+}
+
+#eshop .card .card-title{
+    color:orangered;
+}
+#eshop .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 500px;
+    width: calc(33.3333% - 10px);
+}
+#eshop .card.bought {
+  filter: blur(2px) grayscale(100%);
+}
+#eshop .card:hover:not(.bought) {
+    transform: scale(1.05);
+    z-index:2;
+}
+
+#eshop .card-body {
+    padding: 1em 0 1em 0;
+    font-weight: 100;
+    font-style: italic;
+}
+
+#eshop .card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+#eshop .card-text {
+    color: #555;
+}
+#eshop .card-price{
+    color: red  ;
+}
+#eshop .card-availability{
+    font-size:.85rem;
+}
+#eshop .btn-primary {
+    margin-top: 1rem;
+}
+
+#eshop .card.inBasket{
+    background: rgba(33, 187, 19, 0.11);
+}
+
+#eshop .shopBasketCount {
+    background: #282d3d;
+    padding: .75em 2em .75em 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .3em;
+    border: 1px solid #040917;
+    border-radius: 7.5px;
+    transition:all .2s ease;
+  }
+  #eshop .shopBasketCount svg{
+    color:white;
+  }
+  #eshop .shopBasketCount span {
+    color: crimson;
+    font-weight: bold;
+    font-size:1.2em;
+  }
+
+  #eshop .shopBasketCount:hover{
+    background: white;
+  }
+  #eshop .shopBasketCount:hover > *{
+    transform: scale(1.2);
+  }
+  #eshop .shopBasketCount:hover svg{
+    color:red;
+  }
+  #purchaseContainer {
+    position: absolute;
+    height: 500px;
+    width: 500px;
+    background: white;
+    margin: auto;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    padding: 1em;
+    display: flex;
+    flex-direction:column;
+    z-index:12;
+    justify-content: center;
+    border: 1px solid aliceblue;
+    border-radius: 10px;
+    box-shadow:0px 0px 5px rgba(0,0,0,.1);
+  }
+  #purchaseContainer .container {
+    width: 100%;
+    padding: .5em;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 80%;
+  }
+  #purchaseContainer button.close-button {
+    position: absolute;
+    top: -5px;
+    right: -2px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: crimson;
+    cursor: pointer;
+    padding: 0.5rem;
+    height: 50px;
+  }
+  
+  #purchaseContainer .close-button:hover {
+    color: darkred; 
+  }
