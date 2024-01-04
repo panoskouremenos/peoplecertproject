@@ -9,7 +9,7 @@ public partial class CandidatePhotoId
 
     public int? CandidateId { get; set; }
 
-    public string? PhotoIdtype { get; set; }
+    public int? PhotoIdtype { get; set; }
 
     public string? PhotoIdnumber { get; set; }
 

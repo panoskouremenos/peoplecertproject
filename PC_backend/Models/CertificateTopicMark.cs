@@ -16,4 +16,6 @@ public partial class CertificateTopicMark
     public int? NumberOfPossibleMarks { get; set; }
 
     public virtual Certificate? Certificate { get; set; }
+
+    public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
 }

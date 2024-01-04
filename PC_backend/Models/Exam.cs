@@ -9,17 +9,13 @@ public partial class Exam
 
     public int? CandidateId { get; set; }
 
-    public string? TestCode { get; set; }
+    public DateTime? DateAssigned { get; set; }
 
-    public DateTime? DateTaken { get; set; }
-
-    public int? TotalScore { get; set; }
-
-    public int? PassingMark { get; set; }
+    public int? CertificateId { get; set; }
 
     public virtual Candidate? Candidate { get; set; }
 
-    public virtual ICollection<ExamResult> ExamResults { get; set; } = new List<ExamResult>();
+    public virtual Certificate? Certificate { get; set; }
 
-    public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
+    public virtual ICollection<ExamResult> ExamResults { get; set; } = new List<ExamResult>();
 }

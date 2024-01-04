@@ -7,13 +7,15 @@ public partial class Question
 {
     public int QuestionId { get; set; }
 
-    public int? ExamId { get; set; }
+    public int? CertificateTopicMarksId { get; set; }
 
     public string? QuestionText { get; set; }
 
     public string? QuestionType { get; set; }
 
-    public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
+    public string? PossibleAnswers { get; set; }
 
-    public virtual Exam? Exam { get; set; }
+    public string? Answer { get; set; }
+
+    public virtual CertificateTopicMark? CertificateTopicMarks { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PC_backend.Dto;
 using PC_backend.Models;
 using PC_backend.Services;
 
@@ -49,7 +50,7 @@ public class AuthController : ControllerBase
 		_context.Usertbls.Add(user);
 		await _context.SaveChangesAsync();
 		//testing
-		return Ok(/*new { UserId = user.UserId }*/);
+		return Ok();
 	}
 	[Authorize]
 	[HttpGet("AuthorizeAuthenticatedUsers")]
