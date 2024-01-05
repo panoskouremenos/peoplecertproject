@@ -104,4 +104,59 @@ public class AuthController : ControllerBase
 		return new JwtSecurityTokenHandler().WriteToken(token);
 	}
 
+	[Authorize]
+	[HttpPut("change-password")]
+	public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
+	{
+		var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+		if (userIdClaim == null)
+		{
+			return Unauthorized("User ID is missing in the token.");
+		}
+
+		var userId = int.Parse(userIdClaim.Value);
+		var user = await _context.Usertbls.FindAsync(userId);
+		if (user == null)
+		{
+			return NotFound("User not found.");
+		}
+
+		user.PasswordHash = _passwordHasher.HashPassword(user, changePasswordDto.NewPassword);
+		await _context.SaveChangesAsync();
+
+		return Ok("Password changed successfully.");
+	}
+	[Authorize]
+	[HttpPut("change-username")]
+	public async Task<IActionResult> ChangeUsername(ChangeUsernameDto changeUsernameDto)
+	{
+		var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+		if (userIdClaim == null)
+		{
+			return Unauthorized("User ID is missing in the token.");
+		}
+
+		var userId = int.Parse(userIdClaim.Value);
+		var user = await _context.Usertbls.FindAsync(userId);
+		if (user == null)
+		{
+			return NotFound("User not found.");
+		}
+
+		var existingUser = await _context.Usertbls
+			.AnyAsync(u => u.UserName == changeUsernameDto.NewUsername && u.UserId != userId);
+
+		if (existingUser)
+		{
+			return Conflict("Username already taken.");
+		}
+
+		user.UserName = changeUsernameDto.NewUsername;
+		await _context.SaveChangesAsync();
+
+		return Ok("Username changed successfully.");
+	}
+
+
+
 }

@@ -1,4 +1,6 @@
-﻿using PC_backend.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace PC_backend.Dto
 {
