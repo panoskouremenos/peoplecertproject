@@ -20,7 +20,10 @@ namespace PC_backend.Controllers
         {
             _context = context;
         }
-        [Authorize(Roles = "1")]
+		/// <summary>
+		/// Gets the infos of a certain candidate, (for Admin use)
+		/// </summary>
+		[Authorize(Roles = "2")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Candidate>> Get(int id)
         {
@@ -35,7 +38,10 @@ namespace PC_backend.Controllers
             }
             return candidate;
         }
-        [Authorize(Roles = "1")]
+		/// <summary>
+		/// Gets the infos of all candidates in existence. (for Admin use)
+		/// </summary>
+		[Authorize(Roles = "2")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Candidate>>> GetAll()
         {
@@ -51,8 +57,10 @@ namespace PC_backend.Controllers
 
             return Ok(candidates);
         }
-
-        [Authorize(Roles = "1")]
+		/// <summary>
+		/// Makes the registered user a Candidate. Joins CandidatePhotoID and CandidateAddress together, accepts a json for all three of them together. Also binds his user profile with his candidate profile.
+		/// </summary>
+		[Authorize(Roles = "1")]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CandidateCreateDto candidateCreateDto)
         {
@@ -115,7 +123,10 @@ namespace PC_backend.Controllers
 
             return CreatedAtAction(nameof(Get), new { id = candidate.CandidateId }, candidate);
         }
-        [Authorize(Roles = "2")]
+		/// <summary>
+		/// Accepts the candidate's id, deletes the candidate and whatever info is joined with his in CandidateAddresses and CandidatePhotoIds.
+		/// </summary>
+		[Authorize(Roles = "2")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -138,7 +149,10 @@ namespace PC_backend.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "1")]
+		/// <summary>
+		/// Gets the user's id from jwt token, lets him edit his own candidate infos.
+		/// </summary>
+		[Authorize(Roles = "1")]
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] CandidateUpdateDto candidateUpdateDto)
         {
@@ -210,7 +224,10 @@ namespace PC_backend.Controllers
 
         }
 
-        [HttpPut("{id}")]
+		/// <summary>
+		/// Updates the information of a candidate with a certain ID, made for admin use.
+		/// </summary>
+		[HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CandidateUpdateDto candidateUpdateDto)
         {
             if (!ModelState.IsValid)

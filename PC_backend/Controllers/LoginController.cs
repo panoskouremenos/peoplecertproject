@@ -35,6 +35,13 @@ public class AuthController : ControllerBase
 		_passwordHasher = passwordHasher;
 		_configuration = configuration;
 	}
+	/// <summary>
+	/// Action that makes a new user in the database. ..
+	/// </summary>
+	/// <remarks>
+	/// by default the isAction and roleID is "1", both RoleID and userID are passed through JWT.
+	/// </remarks>
+	/// <param name="userRegisterDto">Enter username and password.</param>
 	[HttpPost("register")]
 	public async Task<IActionResult> Register(UserRegisterDto userRegisterDto)
 	{
@@ -49,16 +56,30 @@ public class AuthController : ControllerBase
 
 		_context.Usertbls.Add(user);
 		await _context.SaveChangesAsync();
-		//testing
 		return Ok();
 	}
+	/// <summary>
+	/// Checks if the user is authenticated. (Mainly for testing).
+	/// </summary>
+	/// <remarks>
+	/// This action verifies if the user is authenticated and authorized to access protected resources.
+	/// It returns a simple message indicating the user is authorized.
+	/// </remarks>
+	/// <returns>An Ok response with a message for authorized users.</returns>
 	[Authorize]
 	[HttpGet("AuthorizeAuthenticatedUsers")]
 	public IActionResult AuthorizeAuthenticatedUSers()
 	{
 		return Ok("Authorized Client!");
 	}
-
+	/// <summary>
+	/// Gives a jwt token to the user.
+	/// </summary>
+	/// <remarks>
+	/// This action gives a jwt to the user by utilizing username and password
+	/// 
+	/// </remarks>
+	/// <returns>A jwt token for authorizarion</returns>
 	[HttpPost("login")]
 	public async Task<IActionResult> Login(UserLoginDto userLoginDto)
 	{
@@ -74,36 +95,16 @@ public class AuthController : ControllerBase
 				return Ok(new { Token = token });
 			}
 		}
-
 		return Unauthorized("Invalid credentials");
 	}
-
-	
-	private string GenerateJwtToken(Usertbl user)
-	{
-		var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]);
-		var securityKey = new SymmetricSecurityKey(key);
-		var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-		var claims = new[]
-		{
-		new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-		new Claim(ClaimTypes.Role , "1"),
-		new Claim("role", ""+user.RoleId),
-		new Claim("id", ""+user.UserId)
-	};
-
-		var token = new JwtSecurityToken(
-			issuer: _configuration["JwtSettings:Issuer"],
-			audience: _configuration["JwtSettings:Audience"],
-			claims: claims,
-			expires: DateTime.Now.AddHours(0.5),
-			signingCredentials: credentials
-		);
-
-		return new JwtSecurityTokenHandler().WriteToken(token);
-	}
-
+	/// <summary>
+	/// Gets the jwt's userID and lets him edit his password.
+	/// </summary>
+	/// <remarks>
+	/// 
+	/// 
+	/// </remarks>
+	/// <returns></returns>
 	[Authorize]
 	[HttpPut("change-password")]
 	public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
@@ -126,6 +127,14 @@ public class AuthController : ControllerBase
 
 		return Ok("Password changed successfully.");
 	}
+	/// <summary>
+	/// Gets the jwt token from the authorized user, checks his userID and then changes his name, also check if the name already exists in the db.
+	/// </summary>
+	/// <remarks>
+	/// Checks if the username exists and if not it changes it.
+	/// 
+	/// </remarks>
+	/// <returns></returns>
 	[Authorize]
 	[HttpPut("change-username")]
 	public async Task<IActionResult> ChangeUsername(ChangeUsernameDto changeUsernameDto)
@@ -157,6 +166,29 @@ public class AuthController : ControllerBase
 		return Ok("Username changed successfully.");
 	}
 
+	private string GenerateJwtToken(Usertbl user)
+	{
+		var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]);
+		var securityKey = new SymmetricSecurityKey(key);
+		var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+		var claims = new[]
+		{
+		new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+		new Claim(ClaimTypes.Role , "1"),
+		new Claim("role", ""+user.RoleId),
+		new Claim("id", ""+user.UserId)
+	};
+
+		var token = new JwtSecurityToken(
+			issuer: _configuration["JwtSettings:Issuer"],
+			audience: _configuration["JwtSettings:Audience"],
+			claims: claims,
+			expires: DateTime.Now.AddHours(0.5),
+			signingCredentials: credentials
+		);
+
+		return new JwtSecurityTokenHandler().WriteToken(token);
+	}
 
 }

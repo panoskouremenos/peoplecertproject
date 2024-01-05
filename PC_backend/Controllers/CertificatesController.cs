@@ -22,8 +22,10 @@ namespace PC_backend.Controllers
             _context = context;
         }
 
-        // GET: api/Certificates
-        [HttpGet]
+		/// <summary>
+		/// Gets all Certificates in the Database.
+		/// </summary>
+		[HttpGet]
         public IActionResult GetCertificates()
         {
           if (_context.Certificates == null)
@@ -37,8 +39,10 @@ namespace PC_backend.Controllers
             return Ok(certificatesWithTopicsAndQuestions);
         }
 
-        // GET: api/Certificates/5
-        [HttpGet("{id}")]
+		/// <summary>
+		/// Get a certificate with a certain ID.
+		/// </summary>
+		[HttpGet("{id}")]
         public IActionResult GetCertificate(int id)
         {
           if (_context.Certificates == null)
@@ -59,9 +63,11 @@ namespace PC_backend.Controllers
             return Ok(certificate);
         }
 
-        // PUT: api/Certificates/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+		/// <summary>
+		/// Edits a certificate with a certain ID.
+		/// </summary>
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPut("{id}")]
         public IActionResult PutCertificate(int id, Certificatedto certificatedto)
         {
             var certificate = _context.Certificates
@@ -92,9 +98,11 @@ namespace PC_backend.Controllers
             return Ok(certificate);
         }
 
-        // POST: api/Certificates
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+		/// <summary>
+		/// Creates a certificate.
+		/// </summary>
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
         public IActionResult PostCertificate(Certificatedto certificatedto)
         {
           if (_context.Certificates == null)
@@ -130,8 +138,10 @@ namespace PC_backend.Controllers
             return Ok(certificate);
         }
 
-        // DELETE: api/Certificates/5
-        [HttpDelete("{id}")]
+		/// <summary>
+		/// Deletes a certain certificate.
+		/// </summary>
+		[HttpDelete("{id}")]
         public  IActionResult DeleteCertificate(int id)
         {
             if (_context.Certificates == null)

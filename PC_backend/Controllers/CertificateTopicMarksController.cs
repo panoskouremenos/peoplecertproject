@@ -22,8 +22,10 @@ namespace PC_backend.Controllers
             _context = context;
         }
 
-        // GET: api/CertificateTopicMarks
-        [HttpGet]
+		/// <summary>
+		/// Gets all the topics along with the questions it contains.
+		/// </summary>
+		[HttpGet]
         public IActionResult GetCertificateTopicMarks()
         {
           if (_context.CertificateTopicMarks == null)
@@ -35,8 +37,10 @@ namespace PC_backend.Controllers
             return Ok(certsTopikMarksWithQyestions);
         }
 
-        // GET: api/CertificateTopicMarks/5
-        [HttpGet("{id}")]
+		/// <summary>
+		/// Gets the TopicMark with a certain id.
+		/// </summary>
+		[HttpGet("{id}")]
         public IActionResult GetCertificateTopicMark(int id)
         {
           if (_context.CertificateTopicMarks == null)
@@ -53,9 +57,11 @@ namespace PC_backend.Controllers
             return Ok(certificateTopicMark);
         }
 
-        // PUT: api/CertificateTopicMarks/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+		/// <summary>
+		/// Edits a Topic Mark with a certain ID.
+		/// </summary>
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPut("{id}")]
         public IActionResult PutCertificateTopicMark(int id, CertificateTopicMarkdto certificateTopicMarkdto)
         {
             var certificateTopicMark = _context.CertificateTopicMarks
@@ -87,9 +93,11 @@ namespace PC_backend.Controllers
         
         }
 
-        // POST: api/CertificateTopicMarks
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+		/// <summary>
+		/// Inserts into the database a TopicMark (Probably unusable).
+		/// </summary>
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
         public IActionResult PostCertificateTopicMark(CertificateTopicMarkdto certificateTopicMarkdto)
         {
           if (_context.CertificateTopicMarks == null)
@@ -122,8 +130,10 @@ namespace PC_backend.Controllers
             return Ok(certificateTopicMark);
         }
 
-        // DELETE: api/CertificateTopicMarks/5
-        [HttpDelete("{id}")]
+		/// <summary>
+		/// Deletes a certain topicmark (I have to test if it also deletes the questions binded)
+		/// </summary>
+		[HttpDelete("{id}")]
         public IActionResult DeleteCertificateTopicMark(int id)
         {
             if (_context.CertificateTopicMarks == null)
