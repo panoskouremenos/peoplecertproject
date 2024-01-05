@@ -41,7 +41,7 @@ namespace PC_backend.Dto
     {
         [Required]
         public string? Address { get; set; }
-        [Required]
+        //[Required]
         public string? AddressLine2 { get; set; }
         [Required]
         public string? CountryOfResidence { get; set; }

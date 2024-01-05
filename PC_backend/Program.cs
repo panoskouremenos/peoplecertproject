@@ -37,8 +37,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-	options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-	options.JsonSerializerOptions.MaxDepth = 7;
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    //options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+    //options.JsonSerializerOptions.MaxDepth = 7;
 });
 
 builder.Services.AddScoped<IPasswordHasher<Usertbl>, PasswordHasher<Usertbl>>();
