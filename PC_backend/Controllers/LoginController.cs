@@ -73,6 +73,31 @@ public class AuthController : ControllerBase
 		return Ok("Authorized Client!");
 	}
 	/// <summary>
+	/// Get the user's Candidateid (if he has one)
+	/// </summary>
+	[Authorize]
+	[HttpGet("GetCandidateId")]
+	public async Task<ActionResult<int>> GetCandidateId()
+	{
+		var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+		if (userIdClaim == null)
+		{
+			return Unauthorized("User ID is missing in the token.");
+		}
+
+		var userId = int.Parse(userIdClaim.Value);
+
+		var candidate = await _context.Candidates
+			.FirstOrDefaultAsync(c => c.UserId == userId);
+
+		if (candidate == null)
+		{
+			return NotFound("Candidate not found for the user.");
+		}
+
+		return Ok(candidate.CandidateId);
+	}
+	/// <summary>
 	/// Gives a jwt token to the user.
 	/// </summary>
 	/// <remarks>

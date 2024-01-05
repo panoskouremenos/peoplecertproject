@@ -128,6 +128,11 @@
             </remarks>
             <returns>An Ok response with a message for authorized users.</returns>
         </member>
+        <member name="M:AuthController.GetCandidateId">
+            <summary>
+            Get the user's Candidateid (if he has one)
+            </summary>
+        </member>
         <member name="M:AuthController.Login(PC_backend.Dto.UserLoginDto)">
             <summary>
             Gives a jwt token to the user.
