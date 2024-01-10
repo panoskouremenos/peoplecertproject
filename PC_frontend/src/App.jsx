@@ -46,7 +46,6 @@ const App = () => {
 
   const fetchUserData = async (token) => {
     try {
-<<<<<<< HEAD
       const response = await fetch('https://localhost:5888/api/Auth/GetUsername', {
         method: 'GET',
         headers: {
@@ -54,16 +53,7 @@ const App = () => {
           'Content-Type': 'application/json',
         },
       });
-=======
-      const response = await fetch("http://localhost:3001/api/user", {
-        method: "GET",
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      });
 
->>>>>>> be34e6f77790ce3a7d3335199624fcdc50473a83
       if (response.ok) {
         const userData = await response.text();
         setUser({username:userData});

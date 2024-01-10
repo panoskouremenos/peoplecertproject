@@ -16,33 +16,12 @@ const EShop = ({ eshop , onadd , onremove }) => {
     return (
         <div className={eshop.inBasket === false ? `card m-1` : `card m-1 inBasket`}>
             <div className="card-body">
-<<<<<<< HEAD
                 <h5 className="card-title">{eshop.productName}</h5>
                 <p className="card-text">{eshop.description}</p>
                 <p className="card-price"><strong>${eshop.price}</strong></p>
                 <p className="card-availability">Available Stock: {eshop.availableStock}</p>
                 {eshop.inBasket === false ?
                 <button className="btn btn-add" onClick={(e) => onadd(eshop.productId)}>Add to Cart</button>
-=======
-                <h5 className="card-title">{eshop.ProductName}</h5>
-                <p className="card-text">{eshop.Description}</p>
-                <p className="card-price"><strong>${eshop.Price}</strong></p>
-                <p className="card-availability">Available Stock: {eshop.AvailableStock}</p>
-                <Form.Group className="mb-3">
-                <Form.Label>Exam Date:</Form.Label>
-                <Form.Control
-                    type="datetime-local"
-                    name="examDate"
-                    min={new Date().toISOString().split('.')[0]}
-                    max={maxDateISOString}
-                    value={examDate}
-                    onChange={(e) => setExamDate(formatDatetime(e.target.value))}
-                    step="60"
-                />
-                </Form.Group>
-                {eshop.inBasket === false ?
-                <button className="btn btn-add" onClick={(e) => onadd(eshop.ProductID , examDate)}>Add to Cart</button>
->>>>>>> be34e6f77790ce3a7d3335199624fcdc50473a83
                 :
                 <button className="btn btn-danger" onClick={(e) => onremove(eshop.productId)}>Remove from Cart</button>
                 }
