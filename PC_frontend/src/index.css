@@ -57,6 +57,24 @@ html,body{
 .btn-close{
   padding:.5em !important;
 }
+.btn-edit{
+  background:blue;
+  color:white;
+}
+.btn-edit:hover{
+  background:lightblue;
+  color:white;
+}
+.btn-save{
+  background:#535bf2;
+  color:white;
+  border:1px solid blue;
+  margin-right:5px;
+}
+.btn-save:hover{
+  color:white;
+  background:#333bc4;
+}
 .btn-add{
   background:green;
   color:white;
@@ -178,4 +196,17 @@ html,body{
 }
 .popover-body a:hover{
   color:orangered;
+}
+#alerts_box {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  margin: auto;
+  z-index:13;
+}
+#userPanelContainer{
+  background:azure;
+  border-radius:5px;
+  border:1px solid rgb(203, 244, 252);
 }
