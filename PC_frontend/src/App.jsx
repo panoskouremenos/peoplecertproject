@@ -102,16 +102,6 @@ const App = () => {
                       EShop
                     </NavLink>
                   </li>
-                  <li className="nav-item">
-                    <NavLink to="/candidates" className="nav-link">
-                      Candidates
-                    </NavLink>
-                  </li>
-                  <li className="nav-item">
-                    <NavLink to="/certificates" className="nav-link">
-                      Certificates
-                    </NavLink>
-                  </li>
                   {!token ? (
                     <li className="nav-item">
                       <NavLink to="/login" className="nav-link">
@@ -144,7 +134,6 @@ const App = () => {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/register" element={<RegisterPage />} />
-              <Route path="/candidates" element={<CandidatesPage />} />
               <Route path="/eshop" element={<EShopPage />} />
               {token !== null ? (
                 <>
@@ -157,7 +146,6 @@ const App = () => {
                   <Route path="/user/cp" element={<LoginPage />} />
                 </>
               )}
-              <Route path="/certificates" element={<CertificatesPage />} />
             </Routes>
           </div>
         </div>

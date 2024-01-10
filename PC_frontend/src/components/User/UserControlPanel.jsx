@@ -3,31 +3,73 @@ import AuthContext from "../../AuthContext";
 import AlertContext from "../../AlertContext";
 
 const UserControlPanel = () => {
-  const [candidate, setCandidate] = useState(null);
+  const [candidate, setCandidate] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    gender: "",
+    nativeLanguage: "",
+    birthDate: "",
+    email: "",
+    landlineNumber: "",
+    mobileNumber: "",
+    addresses: [{
+      address: "",
+      addressLine2: "",
+      countryOfResidence: "",
+      stateTerritoryProvince: "",
+      townCity: "",
+      postalCode: ""
+    }],
+    photoIDs: [{
+      photoIdtype: 0,
+      photoIdnumber: "",
+      photoIdissueDate: ""
+    }]
+  });
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const { token } = useContext(AuthContext);
   const { alerts , setAlerts } = useContext(AlertContext)
 
   const generateUserPanel = (userData) => {
+    if (userData.birthDate) {
+      userData.birthDate = formatDateForInput(userData.birthDate);
+    }
+    if (userData.candidatePhotoIds && userData.candidatePhotoIds.length > 0) {
+      userData.candidatePhotoIds[0].photoIdissueDate = formatDateForInput(userData.candidatePhotoIds[0].photoIdissueDate);
+    }
     setCandidate(userData);
+  };
+
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; 
   };
 
   const fetchUserPersonalData = async (token) => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3001/api/user/data", {
+      const response = await fetch("https://localhost:5888/api/Candidates/MyCandidateInfo", {
+        
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          'Authorization': `bearer ${token}`,
         },
       });
-
       if (response.ok) {
         const userData = await response.json();
+        console.log("1")
+        console.log(userData)
         if (token) {
-          generateUserPanel(userData);
+            if ('message' in userData){
+              generateUserPanel({isCandidate: false});
+            }else{
+              generateUserPanel({...userData, isCandidate: true});
+            }
+
         }
       }
     } catch (error) {
@@ -37,32 +79,23 @@ const UserControlPanel = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCandidate((prevCandidate) => ({
-      ...prevCandidate,
-      [name]: value,
-    }));
-  };
-  
-  const handleCancelEdit = () => {
-    setEditing(false);
-    fetchUserPersonalData(token);
-  }
-
-  const handleCandidateValid = () => {
-    console.log(candidate);
-    handleUpdateCandidate(token)
-  }
-
-  const handleUpdateCandidate = async(token) => {
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setCandidate((prevCandidate) => ({
+  //     ...prevCandidate,
+  //     [name]: value,
+  //   }));
+  // };
+  const fetchUpdateCandidate = async(METHOD) => {
+    
     const newAlerts = [];
-    try{
-      const response = await fetch("http://localhost:3001/api/user/data/edit", {
-        method: "POST",
+    try{  
+      console.log(JSON.stringify(candidate))
+      const response = await fetch("https://localhost:5888/api/Candidates", {
+        method: METHOD,
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          'Authorization': `bearer ${token}`,
         },
         body:JSON.stringify(
           candidate
@@ -85,11 +118,72 @@ const UserControlPanel = () => {
     }
   }
 
+  const handleCancelEdit = () => {
+    setEditing(false);
+    fetchUserPersonalData(token);
+  }
+  const handleCandidateValid = () => {
+    console.log(candidate);
+    handleUpdateCandidate(token)
+  }
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    const keys = name.split('.');
+  
+    
+    setCandidate((prevCandidate) => {
+      const updatedCandidate = { ...prevCandidate };
+
+      let currentObject = updatedCandidate;
+      for (let i = 0; i < keys.length - 1; i++) {
+        if (!currentObject[keys[i]]) {
+          currentObject[keys[i]] = {};
+        }
+        currentObject = currentObject[keys[i]];
+      }
+
+      currentObject[keys[keys.length - 1]] = value;
+
+      return updatedCandidate;
+    });
+  };
+
+  const handleUpdateCandidate = async(token) => {
+    const newAlerts = [];
+    try{
+      const response = await fetch('https://localhost:5888/api/Candidates/MyCandidateInfo',{
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `bearer ${token}`,
+        },
+      });
+      console.log(response.status)
+      if(response.ok){
+        const data = await response.json();
+        // Check if data has a property 'message'
+        if ('message' in data && typeof data.message === 'string'){
+          console.log("ΜΑΛΑΚΑ")
+          fetchUpdateCandidate("POST");
+        }else{
+          console.log("ΚΑΡΙΟΛΗ")
+          fetchUpdateCandidate("PUT");
+        }
+      } else {
+       console.log("ΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑΑ")
+      }   
+    }catch(error){}
+      
+  }
+
   useEffect(() => {
     if (token) {
       fetchUserPersonalData(token);
     }
   }, [token]);
+
+  
   return (
     <div className="container p-5" id="userPanelContainer">
       <div className="row d-flex justify-content-center">
@@ -109,8 +203,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="FirstName"
-  value={candidate.FirstName}
+  name="firstName"
+  value={candidate.firstName}
   onChange={handleInputChange}
 />
 
@@ -118,8 +212,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="MiddleName"
-  value={candidate.MiddleName}
+  name="middleName"
+  value={candidate.middleName}
   onChange={handleInputChange}
   
 />
@@ -128,8 +222,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="LastName"
-  value={candidate.LastName}
+  name="lastName"
+  value={candidate.lastName}
   onChange={handleInputChange}
   
 />
@@ -138,8 +232,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="Gender"
-  value={candidate.Gender}
+  name="gender"
+  value={candidate.gender}
   onChange={handleInputChange}
 />
 
@@ -147,8 +241,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="NativeLanguage"
-  value={candidate.NativeLanguage}
+  name="nativeLanguage"
+  value={candidate.nativeLanguage}
   
   onChange={handleInputChange}
 />
@@ -157,8 +251,8 @@ const UserControlPanel = () => {
 <input
   type="date"
   className="form-control mb-2"
-  name="BirthDate"
-  value={candidate.BirthDate}
+  name="birthDate"
+  value={candidate.birthDate}
   onChange={handleInputChange}
   
 />
@@ -167,8 +261,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="PhotoIDType"
-  value={candidate.PhotoIDType}
+  name="candidatePhotoIds[0].photoId"
+  value={candidate.candidatePhotoIds[0].photoId}
   onChange={handleInputChange}
   
 />
@@ -177,8 +271,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="PhotoIDNumber"
-  value={candidate.PhotoIDNumber}
+  name="candidatePhotoIds[0].photoIdnumber"
+  value={candidate.candidatePhotoIds[0].photoIdnumber}
   onChange={handleInputChange}
   
 />
@@ -187,8 +281,8 @@ const UserControlPanel = () => {
 <input
   type="date"
   className="form-control mb-2"
-  name="PhotoIDIssueDate"
-  value={candidate.PhotoIDIssueDate}
+  name="candidatePhotoIds[0].photoIdissueDate"
+  value={candidate.candidatePhotoIds[0].photoIdissueDate}
   onChange={handleInputChange}
   
 />
@@ -198,8 +292,8 @@ const UserControlPanel = () => {
 <input
   type="email"
   className="form-control mb-2"
-  name="Email"
-  value={candidate.Email}
+  name="email"
+  value={candidate.email}
   onChange={handleInputChange}
   
 />
@@ -208,8 +302,18 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="Address"
-  value={`${candidate.Address} ${candidate.Address2}`}
+  name="candidateAddresses[0].address"
+  value={`${candidate.candidateAddresses[0].address} ${candidate.candidateAddresses[0].addressLine2}`}
+  onChange={handleInputChange}
+  
+/>
+
+<label>Address2:</label>
+<input
+  type="text"
+  className="form-control mb-2"
+  name="candidateAddresses[0].addressLine2"
+  value={`${candidate.candidateAddresses[0].addressLine2}`}
   onChange={handleInputChange}
   
 />
@@ -218,8 +322,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="Country"
-  value={candidate.Country}
+  name="candidateAddresses[0].countryOfResidence"
+  value={candidate.candidateAddresses[0].countryOfResidence}
   onChange={handleInputChange}
   
 />
@@ -228,8 +332,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="State"
-  value={candidate.State}
+  name="candidateAddresses[0].stateTerritoryProvince"
+  value={candidate.candidateAddresses[0].stateTerritoryProvince}
   onChange={handleInputChange}
   
 />
@@ -238,8 +342,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="Town"
-  value={candidate.Town}
+  name="candidateAddresses[0].townCity"
+  value={candidate.candidateAddresses[0].townCity}
   onChange={handleInputChange}
 />
 
@@ -247,8 +351,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="PostalCode"
-  value={candidate.PostalCode}
+  name="candidateAddresses[0].postalCode"
+  value={candidate.candidateAddresses[0].postalCode}
   onChange={handleInputChange}
   
 />
@@ -257,8 +361,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="LandlineNumber"
-  value={candidate.LandlineNumber}
+  name="landlineNumber"
+  value={candidate.landlineNumber}
   onChange={handleInputChange}
   
 />
@@ -267,8 +371,8 @@ const UserControlPanel = () => {
 <input
   type="text"
   className="form-control mb-2"
-  name="MobileNumber"
-  value={candidate.MobileNumber}
+  name="mobileNumber"
+  value={candidate.mobileNumber}
   onChange={handleInputChange}
   
 />
@@ -277,61 +381,67 @@ const UserControlPanel = () => {
             ) : (
               <>
                 <div className="col-md-6 p-2 d-flex flex-column justify-content-center">
+                  {console.log(candidate)}
                   <p>
-                    First Name: <b>{candidate.FirstName}</b>
+                    First Name: <b>{candidate.firstName}</b>
                   </p>
                   <p>
-                    Middle Name: <b>{candidate.MiddleName}</b>
+                    Middle Name: <b>{candidate.middleName}</b>
                   </p>
                   <p>
-                    Last Name: <b>{candidate.LastName}</b>
+                    Last Name: <b>{candidate.lastName}</b>
                   </p>
                   <p>
-                    Gender: <b>{candidate.Gender}</b>
+                    Gender: <b>{candidate.gender}</b>
                   </p>
                   <p>
-                    Native Language: <b>{candidate.NativeLanguage}</b>
+                    Native Language: <b>{candidate.nativeLanguage}</b>
                   </p>
                   <p>
-                    Birth Date: <b>{candidate.BirthDate}</b>
+                    Birth Date: <b>{candidate.birthDate}</b>
                   </p>
                   <p>
-                    Photo ID Type <b>{candidate.PhotoIDType}</b>
+              
+                    Photo ID Type <b>{candidate.candidatePhotoIds[0].photoId}</b>
                   </p>
                   <p>
-                    Photo ID Number : <b>{candidate.PhotoIDNumber}</b>
+                    Photo ID Number : <b>{candidate.candidatePhotoIds[0].photoIdnumber}</b>
                   </p>
                   <p>
-                    Photo ID Issue Date : <b>{candidate.PhotoIDIssueDate}</b>
+                    Photo ID Issue Date : <b>{candidate.candidatePhotoIds[0].photoIdissueDate}</b>
                   </p>
                 </div>
                 <div className="col-md-6 p-2 d-flex flex-column justify-content-center">
                   <p>
-                    Email: <b>{candidate.Email}</b>
+                    Email: <b>{candidate.email}</b>
                   </p>
                   <p>
-                    Address :{" "}
+                    Address :
                     <b>
-                      {candidate.Address} {candidate.Address2}
+                        {candidate.candidateAddresses[0].address}
+                    </b>
+                     Address Number :
+                    <b>
+                        {candidate.candidateAddresses[0].addressLine2}
                     </b>
                   </p>
                   <p>
-                    Country : <b>{candidate.Country}</b>
+                    Country : <b>{candidate.candidateAddresses[0].countryOfResidence}</b>
                   </p>
                   <p>
-                    State : <b>{candidate.State}</b>
+                    State : <b>{candidate.candidateAddresses[0].stateTerritoryProvince}</b>
                   </p>
                   <p>
-                    Town : <b>{candidate.Town}</b>
+                    Town : <b>{candidate.candidateAddresses[0].townCity}</b>
                   </p>
                   <p>
-                    Postal Code : <b>{candidate.PostalCode}</b>
+                    Postal Code : <b>{candidate.candidateAddresses[0].postalCode}</b>
                   </p>
                   <p>
-                    Landline Number : <b>{candidate.LandlineNumber}</b>
+                    Landline Number : <b>{candidate.landlineNumber}</b>
                   </p>
                   <p>
-                    Mobile Number : <b>{candidate.MobileNumber}</b>
+                    Mobile Number : <b>{candidate.mobileNumber}</b>
                   </p>
                 </div>
               </>
@@ -339,7 +449,7 @@ const UserControlPanel = () => {
             {editing === true? 
             ( 
             <>
-            <button className="btn btn-save" style={{ width: "auto", paddingLeft: "1em", paddingRight: "1em" }} onClick={(e) => handleCandidateValid()}>Save</button>
+            <button className="btn btn-save" style={{ width: "auto", paddingLeft: "1em", paddingRight: "1em" }} onClick={handleCandidateValid}>Save</button>
             <button className="btn btn-danger" style={{ width: "auto", paddingLeft: "1em", paddingRight: "1em" }} onClick={handleCancelEdit}>Cancel Edit</button>
             </> 
             )
@@ -356,3 +466,4 @@ const UserControlPanel = () => {
 };
 
 export default UserControlPanel;
+

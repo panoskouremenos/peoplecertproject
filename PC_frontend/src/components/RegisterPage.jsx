@@ -14,13 +14,13 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const handleRegistration = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/register", {
+      const response = await fetch("https://localhost:5888/api/Auth/register", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: formData.username,
+          userName: formData.username,
           password: formData.password,
         }),
       });

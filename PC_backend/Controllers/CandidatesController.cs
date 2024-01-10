@@ -23,6 +23,34 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Gets the infos of a certain candidate, (for Admin use)
 		/// </summary>
+		[Authorize]
+		[HttpGet("MyCandidateInfo")]
+		public async Task<IActionResult> GetMyCandidateInfo()
+		{
+			// Extract the user ID from the JWT token
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized(new { message = "User ID is missing in the token." });
+			}
+
+			var userId = int.Parse(userIdClaim.Value);
+
+			// Query the database to find the candidate associated with this user ID
+			var candidate = await _context.Candidates
+				.Include(c => c.CandidateAddresses)
+				.Include(c => c.CandidatePhotoIds)
+				.FirstOrDefaultAsync(c => c.UserId == userId);
+
+			if (candidate == null)
+			{
+				return Ok(new { message = "User is not a candidate" });
+			}
+
+			return Ok(candidate); 
+		}
+
+
 		[Authorize(Roles = "2")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Candidate>> Get(int id)
@@ -81,7 +109,8 @@ namespace PC_backend.Controllers
                 FirstName = candidateCreateDto.FirstName,
                 MiddleName = candidateCreateDto.MiddleName,
                 LastName = candidateCreateDto.LastName,
-                Gender = candidateCreateDto.Gender,
+				Email = candidateCreateDto.Email,
+				Gender = candidateCreateDto.Gender,
                 BirthDate = candidateCreateDto.BirthDate,
                 NativeLanguage = candidateCreateDto.NativeLanguage,
                 LandlineNumber = candidateCreateDto.LandlineNumber,
@@ -188,6 +217,7 @@ namespace PC_backend.Controllers
             candidate.MobileNumber = candidateUpdateDto.MobileNumber;
 
             _context.CandidateAddresses.RemoveRange(candidate.CandidateAddresses);
+            Console.WriteLine(candidateUpdateDto.Addresses);
             foreach (var addressDto in candidateUpdateDto.Addresses)
             {
                 var address = new CandidateAddress

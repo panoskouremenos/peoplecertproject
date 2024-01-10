@@ -22,7 +22,7 @@ const UserNavUi = ({ handleLogout }) => {
               onClick={handleTogglePopover}
             >
         <FontAwesomeIcon icon={faUserTie} alt="User Avatar" className="user-avatar"/>
-        <span class="user-name">{user.username}</span>
+        <span className="user-name">{user.username}</span>
             </button>
   
             <Overlay
