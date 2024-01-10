@@ -20,6 +20,18 @@ builder.Services.AddSwaggerGen(c =>
 	c.IncludeXmlComments(xmlPath);
 });
 builder.Services.AddControllers();
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("MyCorsPolicy", policy =>
+	{
+		policy.WithOrigins("http://localhost:5173") // Replace with your React app's URL
+			.AllowAnyHeader()
+			.AllowAnyMethod();
+	});
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
@@ -79,6 +91,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 		};
 	});
 var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+	app.UseExceptionHandler("/Error");
+	app.UseHsts();
+}
+
+
 app.UseSession();
 
 if (app.Environment.IsDevelopment())
@@ -91,6 +111,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseCors("MyCorsPolicy"); // Apply CORS policy
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

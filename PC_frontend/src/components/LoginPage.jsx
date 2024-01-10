@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../AuthContext'; 
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [UserName, setUsername] = useState('');
+  const [Password, setPassword] = useState('');
   const [rememberPassword, setRememberPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
@@ -23,13 +23,13 @@ const Login = () => {
 
   const handleLogin = async () => {
     const newErrors = [];
-    if (!username.trim()) {
+    if (!UserName.trim()) {
       newErrors.push('Username is required.');
     }
-    if (username.length < 4 && username.trim() !== String()) {
+    if (UserName.length < 4 && UserName.trim() !== String()) {
       newErrors.push('Username has to be at least 4 letters!');
     }
-    if (!password.trim()) {
+    if (!Password.trim()) {
       newErrors.push('Password is required.');
     }
 
@@ -40,14 +40,14 @@ const Login = () => {
     } else {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3001/api/login', {
+        const response = await fetch('https://localhost:5888/api/Auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            username,
-            password,
+            UserName,
+            Password,
           }),
         });
 
@@ -99,8 +99,8 @@ const Login = () => {
               <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter your username"
-                value={username}
+                placeholder="Enter your UserName"
+                value={UserName}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyDown={(e) => handleKeyPress(e)}
                 required
@@ -112,7 +112,7 @@ const Login = () => {
               <Form.Control
                 type="password"
                 placeholder="Enter your password"
-                value={password}
+                value={Password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => handleKeyPress(e)}
                 required

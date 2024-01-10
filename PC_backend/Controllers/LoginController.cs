@@ -97,6 +97,33 @@ public class AuthController : ControllerBase
 
 		return Ok(candidate.CandidateId);
 	}
+
+	[Authorize]
+	[HttpGet("GetUsername")]
+	public async Task<ActionResult<string>> GetUsername()
+	{
+		// Extract the user ID from the JWT token's 'id' claim
+		var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+		if (userIdClaim == null)
+		{
+			return Unauthorized("User ID is missing in the token.");
+		}
+
+		var userId = int.Parse(userIdClaim.Value);
+
+		// Query the database to find the user by ID
+		var user = await _context.Usertbls
+			.FirstOrDefaultAsync(u => u.UserId == userId);
+
+		if (user == null)
+		{
+			return NotFound("User not found.");
+		}
+
+		return Ok(user.UserName);
+	}
+
+
 	/// <summary>
 	/// Gives a jwt token to the user.
 	/// </summary>

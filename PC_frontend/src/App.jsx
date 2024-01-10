@@ -38,17 +38,16 @@ const App = () => {
   
   const fetchUserData = async (token) => {
     try {
-      const response = await fetch('http://localhost:3001/api/user', {
+      const response = await fetch('https://localhost:5888/api/Auth/GetUsername', {
         method: 'GET',
         headers: {
-          'Authorization': token,
+          'Authorization': `bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
-  
       if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
+        const userData = await response.text();
+        setUser({username:userData});
       } else {
         handleLogout();
       }

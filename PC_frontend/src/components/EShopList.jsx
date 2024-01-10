@@ -22,7 +22,7 @@ const EShopList = ({ eshops, boughtProducts , onadd, onremove , onbuy }) => {
       <div className="shoplist row mt-3">
         {eshops.map((eshop) => (
           <Eshop
-            key={eshop.ProductID}
+            key={eshop.productId}
             onremove={onremove}
             onadd={onadd}
             eshop={eshop}
@@ -30,10 +30,10 @@ const EShopList = ({ eshops, boughtProducts , onadd, onremove , onbuy }) => {
         ))}
         {boughtProducts.map((eshop) => {
           return(
-          <div className="card bought m-1" key={eshop.ProductID}>
+          <div className="card bought m-1" key={eshop.productId}>
           <div className="card-body">
-              <h5 className="card-title">{eshop.ProductName}</h5>
-              <p className="card-text">{eshop.Description}</p>
+              <h5 className="card-title">{eshop.productName}</h5>
+              <p className="card-text">{eshop.description}</p>
           </div>
       </div>)
         })}

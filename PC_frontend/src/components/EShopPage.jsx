@@ -11,7 +11,7 @@ const EShopPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/certificates", {
+      const response = await fetch("http://localhost:5888/api/EshopProducts", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +36,7 @@ const EShopPage = () => {
 
   const fetchUserProducts = async (token) => {
     try {
-      const response = await fetch("http://localhost:3001/api/user/certificates", {
+      const response = await fetch("http://localhost:5888/api/user/certificates", {
         method: "GET",
         headers: {
           "Authorization": token,
