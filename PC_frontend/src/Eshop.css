@@ -51,13 +51,13 @@
 }
 
 #eshop .shopBasketCount {
-    background: #282d3d;
     padding: .75em 2em .75em 2em;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: .3em;
-    border: 1px solid #040917;
+    background: rgb(11, 126, 11);
+    border: 1px solid darkgreen;
     border-radius: 7.5px;
     transition:all .2s ease;
   }
@@ -70,13 +70,13 @@
     font-size:1.2em;
   }
 
-  #eshop .shopBasketCount:hover{
+  #eshop .shopBasketCount:hover:not(.empty){
     background: white;
   }
-  #eshop .shopBasketCount:hover > *{
+  #eshop .shopBasketCount:hover:not(.empty) > *{
     transform: scale(1.2);
   }
-  #eshop .shopBasketCount:hover svg{
+  #eshop .shopBasketCount:hover:not(.empty) svg{
     color:red;
   }
   #purchaseContainer {
@@ -120,4 +120,10 @@
   
   #purchaseContainer .close-button:hover {
     color: darkred; 
+  }
+
+  #eshop .shopBasketCount.empty{
+    cursor:default;
+    background: #282d3d;
+    border: 1px solid #040917;
   }

@@ -7,7 +7,7 @@ const HomePage = () => {
   return (
     <div>
       {user ? (
-        <p>Hello, {user.username}!</p>
+        <p>Hello, <b>{user.username}</b>!</p>
       ) : (
         <p>You are not logged in.</p>
       )}

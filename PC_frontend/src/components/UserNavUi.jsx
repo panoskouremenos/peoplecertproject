@@ -35,6 +35,11 @@ const UserNavUi = ({ handleLogout }) => {
               <Popover id="popover-contained">
                 <Popover.Header as="h3">User Actions</Popover.Header>
                 <Popover.Body>
+                  <NavLink to="/user/cp">
+                    Control Panel
+                  </NavLink>
+                </Popover.Body>
+                <Popover.Body>
                 <NavLink to="/user/certificates" >
                   My Certificates
                 </NavLink>     
