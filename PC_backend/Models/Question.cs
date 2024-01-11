@@ -11,11 +11,13 @@ public partial class Question
 
     public string? QuestionText { get; set; }
 
-    public string? QuestionType { get; set; }
+    public int? QuestionType { get; set; }
 
     public string? PossibleAnswers { get; set; }
 
     public string? Answer { get; set; }
 
     public virtual CertificateTopicMark? CertificateTopicMarks { get; set; }
+
+    public virtual ICollection<ExamCandAnswer> ExamCandAnswers { get; set; } = new List<ExamCandAnswer>();
 }

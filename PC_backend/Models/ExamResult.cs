@@ -13,7 +13,9 @@ public partial class ExamResult
 
     public DateTime? ResultDate { get; set; }
 
-    public int? Passed { get; set; }
+    public bool? Passed { get; set; }
 
     public virtual Exam? Exam { get; set; }
+
+    public virtual ICollection<ExamCandAnswer> ExamCandAnswers { get; set; } = new List<ExamCandAnswer>();
 }

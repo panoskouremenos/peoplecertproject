@@ -13,7 +13,9 @@ public partial class Usertbl
 
     public int? RoleId { get; set; }
 
-    public int? IsActive { get; set; }
+    public bool? IsActive { get; set; }
+
+    public double? Cash { get; set; }
 
     public virtual ICollection<Candidate> Candidates { get; set; } = new List<Candidate>();
 

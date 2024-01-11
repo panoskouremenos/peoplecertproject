@@ -10,7 +10,7 @@ namespace PC_backend.Dto
 
         public string? QuestionText { get; set; }
 
-        public string? QuestionType { get; set; }
+        public int? QuestionType { get; set; }
 
         public string? PossibleAnswers { get; set; }
 

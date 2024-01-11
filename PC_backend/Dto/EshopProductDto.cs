@@ -14,7 +14,7 @@ namespace PC_backend.Dto
 
         public int? AvailableStock { get; set; }
 
-        public int? Deleted { get; set; }
+        public bool? Deleted { get; set; }
 
         // public virtual ICollection<ExamVoucher> ExamVouchers { get; set; } = new List<ExamVoucher>();
     }

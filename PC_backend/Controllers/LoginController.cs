@@ -49,7 +49,7 @@ public class AuthController : ControllerBase
 		{
 			UserName = userRegisterDto.UserName,
 			RoleId = 1,
-			IsActive = 1, 
+			IsActive = true, 
 		};
 
 		user.PasswordHash = _passwordHasher.HashPassword(user, userRegisterDto.Password);

@@ -11,7 +11,7 @@ namespace PC_backend.Dto
         public string? MiddleName { get; set; }
         [Required]
         public string? LastName { get; set; }
-        public string? Gender { get; set; }
+        public bool? Gender { get; set; }
         [Required]
         public string? NativeLanguage { get; set; }
         [Required]

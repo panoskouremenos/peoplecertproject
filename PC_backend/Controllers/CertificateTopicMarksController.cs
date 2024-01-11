@@ -74,8 +74,6 @@ namespace PC_backend.Controllers
             }
 
             certificateTopicMark.TopicDesc = certificateTopicMarkdto.TopicDesc;
-            certificateTopicMark.NumberOfAwardedMarks = certificateTopicMarkdto.NumberOfAwardedMarks;
-            certificateTopicMark.NumberOfPossibleMarks = certificateTopicMarkdto.NumberOfPossibleMarks;
             //certificateTopicMark.CertificateId = certificateTopicMarkdto.CertificateId;
             //prosthesa auto gia na ginetai update kai tis qyestion sto questions
             certificateTopicMark.Questions = certificateTopicMarkdto.Questions
@@ -108,8 +106,6 @@ namespace PC_backend.Controllers
             CertificateTopicMark certificateTopicMark = new CertificateTopicMark()
             {
                 TopicDesc = certificateTopicMarkdto.TopicDesc,
-                NumberOfAwardedMarks = certificateTopicMarkdto.NumberOfAwardedMarks,
-                NumberOfPossibleMarks = certificateTopicMarkdto.NumberOfPossibleMarks
                 
             };
 

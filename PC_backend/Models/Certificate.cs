@@ -17,5 +17,7 @@ public partial class Certificate
 
     public virtual ICollection<CertificateTopicMark> CertificateTopicMarks { get; set; } = new List<CertificateTopicMark>();
 
+    public virtual ICollection<ExamVoucher> ExamVouchers { get; set; } = new List<ExamVoucher>();
+
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 }

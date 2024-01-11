@@ -88,8 +88,6 @@ namespace PC_backend.Controllers
                 .Select(certTopicMarks => new CertificateTopicMark
                 {
                     TopicDesc = certTopicMarks.TopicDesc,
-                    NumberOfAwardedMarks = certTopicMarks.NumberOfAwardedMarks,
-                    NumberOfPossibleMarks = certTopicMarks.NumberOfPossibleMarks
                     
                 }).ToList();
             
@@ -121,8 +119,6 @@ namespace PC_backend.Controllers
                 .Select(certTopicMarks=> new CertificateTopicMark
                 {
                     TopicDesc = certTopicMarks.TopicDesc,
-                    NumberOfAwardedMarks = certTopicMarks.NumberOfAwardedMarks,
-                    NumberOfPossibleMarks = certTopicMarks.NumberOfPossibleMarks,
                     Questions = certTopicMarks.Questions.Select(q => new Question
                     {
                         QuestionText = q.QuestionText,
