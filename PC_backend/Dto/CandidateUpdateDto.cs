@@ -26,7 +26,6 @@ namespace PC_backend.Dto
     public class CandidatePhotoIDUpdateDto
     {
         public int PhotoIdId { get; set; }
-
         public int? PhotoIdtype { get; set; }
         public string? PhotoIdnumber { get; set; }
         public DateTime? PhotoIdissueDate { get; set; }
@@ -35,7 +34,6 @@ namespace PC_backend.Dto
     public class CandidateAddressUpdateDto
     {
         public int AddressId { get; set; }
-
         public string? Address { get; set; }
         public string? AddressLine2 { get; set; }
         public string? CountryOfResidence { get; set; }

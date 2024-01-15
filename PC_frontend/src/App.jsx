@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -10,8 +11,8 @@ import { faHome } from "@fortawesome/free-solid-svg-icons";
 import { Alert } from "react-bootstrap";
 
 //IMPORTING COMPONENTS
-import CandidatesPage from "./components/CandidatesPage";
-import CertificatesPage from "./components/CertificatesPage";
+//import CandidatesPage from "./components/CandidatesPage";
+//import CertificatesPage from "./components/CertificatesPage";
 import LoginPage from "./components/LoginPage";
 import HomePage from "./components/HomePage";
 import EShopPage from "./components/EShopPage";
@@ -21,12 +22,24 @@ import AuthContext from "./AuthContext";
 import AlertContext from "./AlertContext";
 import UserNavUi from "./components/UserNavUi";
 import UserControlPanel from "./components/User/UserControlPanel";
+import UserAdminPanel from "./components/User/UserAdminPanel";
+import Candidatedetails from "./components/Admin/candidatedetails";
+import Candidateslist from "./components/Admin/candidateslist";
+import ChangeCreds from "./components/User/ChangeCreds";
+import MyCertificates from "./components/User/MyCertificates";
+import Certificates from "./components/Admin/certificates";
+import MyExams from "./components/User/MyExams";
+//import Voucher from "./components/Admin/vouchers";
 
 const App = () => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [alerts , setAlerts] = useState([]);
 
+  const updateUsername = (newUsername) => {
+    setUser(prevUser => ({ ...prevUser, username: newUsername }));
+  };
+  
   useEffect(() => {
     const local_token = localStorage.getItem("token");
     if (local_token && token === null) {
@@ -34,7 +47,6 @@ const App = () => {
     }
     if (token) {
       fetchUserData(local_token);
-      console.log(token);
     }
   }, [token]);
 
@@ -102,6 +114,7 @@ const App = () => {
                       EShop
                     </NavLink>
                   </li>
+
                   {!token ? (
                     <li className="nav-item">
                       <NavLink to="/login" className="nav-link">
@@ -109,7 +122,11 @@ const App = () => {
                       </NavLink>
                     </li>
                   ) : (
-                    ""
+                    <li className="nav-item">
+                    <NavLink to="/user/exams" className="nav-link">
+                      Exam History
+                    </NavLink>
+                  </li>
                   )}
                 </ul>
               </div>
@@ -139,6 +156,14 @@ const App = () => {
                 <>
                   <Route path="/login" element={<HomePage />} />
                   <Route path="/user/cp" element={<UserControlPanel />} />
+                  <Route path="/user/admin" element={<UserAdminPanel />} />
+                  <Route path="admin/certificates" element={<Certificates />} />
+                  <Route path="admin/candidates" element={<Candidateslist />} />
+                  <Route path="admin/candidates/:id" element={<Candidatedetails />} />
+                  {/*<Route path="admin/vouchers" element={<MyExams />} />*/}
+                  <Route path="cp/changecreds" element={<ChangeCreds updateUsername={updateUsername} />} />
+                  <Route path="user/mycertificates" element={<MyCertificates />} />
+                  <Route path="user/exams" element={<MyExams />} />
                 </>
               ) : (
                 <>

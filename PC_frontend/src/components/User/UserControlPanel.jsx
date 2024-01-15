@@ -1,543 +1,459 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import AuthContext from "../../AuthContext";
-import AlertContext from "../../AlertContext";
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import AuthContext from '../../AuthContext';
+import locationData from '../../json/countries+states+cities.json';
 
-const UserControlPanel = () => {
-  const [candidate, setCandidate] = useState({
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    gender: "",
-    nativeLanguage: "",
-    birthDate: "",
-    email: "",
-    landlineNumber: "",
-    mobileNumber: "",
-    addresses: [{
-      address: "",
-      addressLine2: "",
-      countryOfResidence: "",
-      stateTerritoryProvince: "",
-      townCity: "",
-      postalCode: ""
-    }],
-    photoIDs: [{
-      photoIdtype: 0,
-      photoIdnumber: "",
-      photoIdissueDate: ""
-    }]
-  });
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear().toString().substring(2)}`;
+};
+
+const CandidateDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { token } = useContext(AuthContext);
-  const { alerts, setAlerts } = useContext(AlertContext)
+  const [candidate, setCandidate] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [method, setMethod] = useState("");
+  const newCandidateTemplate = {
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    gender: true, 
+    birthDate: '',
+    nativeLanguage: '',
+    email: '',
+    candidateAddresses: [{ address: '', addressLine2: '', countryOfResidence: '', stateTerritoryProvince: '', townCity: '', postalCode: '' }],
+    candidatePhotoIds: [{ photoIdtype: '', photoIdnumber: '', photoIdissueDate: '' }],
+    landlineNumber: '',
+    mobileNumber: '',
+  };
+  useEffect(() => {
 
-  const generateUserPanel = (userData) => {
-    if (userData.birthDate) {
-      userData.birthDate = formatDateForInput(userData.birthDate);
-    }
-    if (userData.candidatePhotoIds && userData.candidatePhotoIds.length > 0) {
-      userData.candidatePhotoIds[0].photoIdissueDate = formatDateForInput(userData.candidatePhotoIds[0].photoIdissueDate);
-    }
     
-    setCandidate(userData);
-  };
-
-  const formatDateForInput = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
-  };
-
-  const fetchUserPersonalData = async (token) => {
-    try {
-      setLoading(true);
-      const response = await fetch("https://localhost:5888/api/Candidates/MyCandidateInfo", {
-
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': `bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        console.log("1")
-        console.log(userData)
-        if (token) {
-          if ('message' in userData) {
-            generateUserPanel({ isCandidate: false });
-          } else {
-            generateUserPanel({ ...userData, isCandidate: true });
-          }
-
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setCandidate((prevCandidate) => ({
-  //     ...prevCandidate,
-  //     [name]: value,
-  //   }));
-  // };
-  const fetchUpdateCandidate = async (METHOD) => {
-    const newAlerts = [];
-    try {
-      // Prepare data for backend
-      const payload = {
-        ...candidate,
-        addresses: candidate.candidateAddresses, // Send as array
-        photoIDs: candidate.candidatePhotoIds    // Send as array
-      };
-
-      // Log the payload to be sent
-      console.log("Payload to be sent:", payload);
-
-      const response = await fetch("https://localhost:5888/api/Candidates", {
-        method: METHOD,
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': `bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.ok) {
-        newAlerts.push({
-          variant: "success",
-          message: "Your information has been updated."
+    const fetchCandidate = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`https://localhost:5888/api/Candidates/MyCandidateInfo`, {
+          method: 'GET',
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`,
+          },
         });
-        handleCancelEdit();
-      } else {
-        console.log("Response Error:", response);
+    
+        if (!response.ok) {
+          
+          throw new Error('Network response was not ok');
+        }
+    
+        const data = await response.json();
+    
+        if (data.message && data.message === "User is not a candidate") {
+          setMethod("POST")
+          setEditing(true);
+          setCandidate(newCandidateTemplate);
+        } else {
+          setMethod("PUT")
+          setCandidate(data);
+          setSelectedCountry(data.candidateAddresses[0]?.countryOfResidence || "");
+          setSelectedState(data.candidateAddresses[0]?.stateTerritoryProvince || "");
+          setSelectedCity(data.candidateAddresses[0]?.townCity || "");
+        }
+    
+      } catch (error) {
+        console.error('Error fetching candidate:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.log("Fetch Error:", error);
-    } finally {
-      setAlerts(newAlerts);
+    };
+
+    if (token) {
+      fetchCandidate();
     }
+
+  }, [id, token]);
+
+  const buttonStyles = {
+    saveButton: "btn btn-success",
+    cancelButton: "btn btn-secondary",
+    editButton: "btn btn-primary",
+    backButton: "btn btn-info",
+    deleteButton: "btn btn-danger"
   };
 
+  //The options could be placed on database but there is no need to overcomplicate.
+  const genderOptions = {
+    false: "Male",
+    true: "Female",
+  };
 
+  const legaldocOptions = {
+    0: "Passport",
+    1: "ID card",
+    2: "Driver License",
+    3: "Military ID Card",
+    4: "Birth Certificate",
+    5: "Social Security Card"
+  };
 
-  const handleCancelEdit = () => {
-    setEditing(false);
-    fetchUserPersonalData(token);
-  }
-  const handleCandidateValid = () => {
-    console.log(candidate);
-    handleUpdateCandidate(token)
-  }
+  const handleLegalDocChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    setCandidate(prevCandidate => {
+      const updated = { ...prevCandidate };
+      updated.candidatePhotoIds[0].photoIdtype = value;
+      return updated;
+    });
+  };
+
+  const handleCountryChange = (e) => {
+    const newCountry = e.target.value;
+    setSelectedCountry(newCountry);
+    setCandidate(prevCandidate => ({
+      ...prevCandidate,
+      candidateAddresses: [{
+        ...prevCandidate.candidateAddresses[0],
+        countryOfResidence: newCountry
+      }]
+    }));
+  };
+
+  const handleStateChange = (e) => {
+    const newState = e.target.value;
+    setSelectedState(newState);
+    setCandidate(prevCandidate => ({
+      ...prevCandidate,
+      candidateAddresses: [{
+        ...prevCandidate.candidateAddresses[0],
+        stateTerritoryProvince: newState
+      }]
+    }));
+  };
+
+  const handleCityChange = (e) => {
+    const newCity = e.target.value;
+    setSelectedCity(newCity);
+    setCandidate(prevCandidate => ({
+      ...prevCandidate,
+      candidateAddresses: [{
+        ...prevCandidate.candidateAddresses[0],
+        townCity: newCity
+      }]
+    }));
+  };
+
+  const handleGenderChange = (e) => {
+    const newGenderValue = e.target.value === "true";
+    setCandidate(prevCandidate => ({
+      ...prevCandidate,
+      gender: newGenderValue
+    }));
+  };
+  const handleBack = () => {
+    window.location.reload();
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const keys = name.split('.');
 
+    setCandidate(prevCandidate => {
+      let updated = { ...prevCandidate };
 
-    setCandidate((prevCandidate) => {
-      const updatedCandidate = { ...prevCandidate };
-
-      let currentObject = updatedCandidate;
-      for (let i = 0; i < keys.length - 1; i++) {
-        if (!currentObject[keys[i]]) {
-          currentObject[keys[i]] = {};
+      let currentObject = updated;
+      keys.forEach((key, index) => {
+        if (index === keys.length - 1) {
+          currentObject[key] = value;
+        } else {
+          if (/\[\d+\]/.test(key)) {
+            const [arrayName, arrayIndex] = key.match(/[^\[\]]+/g);
+            if (!currentObject[arrayName]) {
+              currentObject[arrayName] = [];
+            }
+            if (!currentObject[arrayName][arrayIndex]) {
+              currentObject[arrayName][arrayIndex] = {};
+            }
+            currentObject = currentObject[arrayName][arrayIndex];
+          } else {
+            if (!currentObject[key]) {
+              currentObject[key] = {};
+            }
+            currentObject = currentObject[key];
+          }
         }
-        currentObject = currentObject[keys[i]];
-      }
+      });
 
-      currentObject[keys[keys.length - 1]] = value;
-
-      return updatedCandidate;
+      return updated;
     });
   };
+  const handleSave = async () => {
+    console.log(method)
+    console.log("Selected country:", selectedCountry);
+    console.log("Selected state:", selectedState);
+    console.log("Selected city:", selectedCity);
 
-  const handleUpdateCandidate = async (token) => {
-    const newAlerts = [];
+    if (selectedCountry === "" || selectedCountry === "Select a Country" ||
+      selectedState === "" || selectedState === "Select a State" ||
+      selectedCity === "" || selectedCity === "Select a City") {
+      alert("Please select a valid country, state, and city.");
+      return;
+    }
     try {
-      const response = await fetch('https://localhost:5888/api/Candidates/MyCandidateInfo', {
-        method: "GET",
+      const requestBody = {
+        ...candidate,
+        Addresses: [
+          {
+            Address: candidate.candidateAddresses[0].address,
+            AddressLine2: candidate.candidateAddresses[0].addressLine2,
+            CountryOfResidence: selectedCountry,
+            StateTerritoryProvince: selectedState,
+            TownCity: selectedCity,
+            PostalCode: candidate.candidateAddresses[0].postalCode,
+          }
+        ],
+        PhotoIDs: [
+          {
+            PhotoIdtype: candidate.candidatePhotoIds[0].photoIdtype,
+            PhotoIdnumber: candidate.candidatePhotoIds[0].photoIdnumber,
+            PhotoIdissueDate: candidate.candidatePhotoIds[0].photoIdissueDate,
+          }
+        ],
+      };
+
+      const response = await fetch(`https://localhost:5888/api/Candidates/`, {
+        method: method,
         headers: {
           "Content-Type": "application/json",
-          'Authorization': `bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify(requestBody),
       });
-      if (response.ok) {
-        const data = await response.json();
-        // Check if data has a property 'message'
-        if ('message' in data && typeof data.message === 'string') {
-          fetchUpdateCandidate("POST");
-        } else {
-          fetchUpdateCandidate("PUT");
-        }
-      } else {
-        console.log("Exception occured")
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
-    } catch (error) { }
-
-  }
-
-  useEffect(() => {
-    if (token) {
-      fetchUserPersonalData(token);
+    } catch (error) {
+      console.error('Error updating candidate:', error);
+    } finally {
+      setEditing(false);
     }
-  }, [token]);
-console.log(candidate.isCandidate)
-  if (candidate.isCandidate == false) {
-    return (
-      <>
-        <div className="col-md-6 p-2 d-flex flex-column ">
-          {/* Form for non-candidates to fill in their information */}
-          <div className="col-md-6 p-2 d-flex flex-column">
+  };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!candidate) {
+    return <p>No candidate data available.</p>;
+  }
+
+  return (
+    <div className="container p-5" id="userPanelContainer">
+      {editing ? (
+        // Edit Mode
+        <div className="row">
+          <div className="col-md-6">
             <label>First Name:</label>
-            <input type="text" className="form-control mb-2" name="firstName" value="" onChange={handleInputChange} />
-
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="firstName"
+              value={candidate.firstName}
+              onChange={handleInputChange}
+            />
             <label>Middle Name:</label>
-            <input type="text" className="form-control mb-2" name="middleName" value="" onChange={handleInputChange} />
-
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="middleName"
+              value={candidate.middleName}
+              onChange={handleInputChange}
+            />
             <label>Last Name:</label>
-            <input type="text" className="form-control mb-2" name="lastName" value="" onChange={handleInputChange} />
-
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="lastName"
+              value={candidate.lastName}
+              onChange={handleInputChange}
+            />
             <label>Gender:</label>
-            <input type="text" className="form-control mb-2" name="gender" value="" onChange={handleInputChange} />
-
+            <select
+              name="gender"
+              className="form-control mb-2"
+              value={genderOptions[candidate.gender]}
+              onChange={handleGenderChange}
+            >
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
             <label>Native Language:</label>
-            <input type="text" className="form-control mb-2" name="nativeLanguage" value="" onChange={handleInputChange} />
-
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="nativeLanguage"
+              value={candidate.nativeLanguage}
+              onChange={handleInputChange}
+            />
             <label>Birth Date:</label>
-            <input type="date" className="form-control mb-2" name="birthDate" value="" onChange={handleInputChange} />
-
-            <label>Email:</label>
-            <input type="email" className="form-control mb-2" name="email" value="" onChange={handleInputChange} />
-
-            <label>Landline Number:</label>
-            <input type="text" className="form-control mb-2" name="landlineNumber" value="" onChange={handleInputChange} />
-
-            <label>Mobile Number:</label>
-            <input type="text" className="form-control mb-2" name="mobileNumber" value="" onChange={handleInputChange} />
-
-            <label>Address:</label>
-            <input type="text" className="form-control mb-2" name="candidateAddresses[0].address" value="" onChange={handleInputChange} />
-
-            <label>Address Line 2:</label>
-            <input type="text" className="form-control mb-2" name="candidateAddresses[0].addressLine2" value="" onChange={handleInputChange} />
-
-            <label>Country:</label>
-            <input type="text" className="form-control mb-2" name="candidateAddresses[0].countryOfResidence" value="" onChange={handleInputChange} />
-
-            <label>State/Territory/Province:</label>
-            <input type="text" className="form-control mb-2" name="candidateAddresses[0].stateTerritoryProvince" value="" onChange={handleInputChange} />
-
-            <label>Town/City:</label>
-            <input type="text" className="form-control mb-2" name="candidateAddresses[0].townCity" value="" onChange={handleInputChange} />
-
-            <label>Postal Code:</label>
-            <input type="text" className="form-control mb-2" name="candidateAddresses[0].postalCode" value="" onChange={handleInputChange} />
-
+            <input
+              type="date"
+              className="form-control mb-2"
+              name="birthDate"
+              value={candidate.birthDate.split('T')[0]}
+              onChange={handleInputChange}
+            />
             <label>Photo ID Type:</label>
-            <input type="text" className="form-control mb-2" name="candidatePhotoIds[0].photoIdtype" value="" onChange={handleInputChange} />
-
+            <select
+              name="candidatePhotoIds[0]?.photoIdtype"
+              className="form-control mb-2"
+              value={candidate.candidatePhotoIds[0]?.photoIdtype || ""}
+              onChange={handleLegalDocChange}
+            >
+              {Object.entries(legaldocOptions).map(([key, value]) => (
+                <option key={key} value={key}>
+                  {value}
+                </option>
+              ))}
+            </select>
             <label>Photo ID Number:</label>
-            <input type="text" className="form-control mb-2" name="candidatePhotoIds[0].photoIdnumber" value="" onChange={handleInputChange} />
-
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="candidatePhotoIds[0].photoIdnumber"
+              value={candidate.candidatePhotoIds[0]?.photoIdnumber || ""}
+              onChange={handleInputChange}
+            />
             <label>Photo ID Issue Date:</label>
-            <input type="date" className="form-control mb-2" name="candidatePhotoIds[0].photoIdissueDate" value="" onChange={handleInputChange} />
-
-            <button className="btn btn-save" style={{ width: "auto", paddingLeft: "1em", paddingRight: "1em" }} onClick={handleCandidateValid}>Submit</button>
+            <input
+              type="date"
+              className="form-control mb-2"
+              name="candidatePhotoIds[0].photoIdissueDate"
+              value={candidate.candidatePhotoIds[0]?.photoIdissueDate.split('T')[0] || ""}
+              onChange={handleInputChange}
+            />
           </div>
+          <div className="col-md-6">
+            <label>Email:</label>
+            <input
+              type="email"
+              className="form-control mb-2"
+              name="email"
+              value={candidate.email}
+              onChange={handleInputChange}
+            />
+            <label>Address:</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="candidateAddresses[0].address"
+              value={candidate.candidateAddresses[0]?.address || ""}
+              onChange={handleInputChange}
+            />
+            <label>Address Line 2:</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="candidateAddresses[0].addressLine2"
+              value={candidate.candidateAddresses[0]?.addressLine2 || ""}
+              onChange={handleInputChange}
+            />
+            <label>Country:</label>
+            <select className="form-control mb-2" value={selectedCountry} onChange={handleCountryChange}>
+              <option value="">Select a Country</option>
+              {locationData.map((country) => (
+                <option key={country.id} value={country.name}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+            <label>State/Territory/Province:</label>
+            <select className="form-control mb-2" value={selectedState} onChange={handleStateChange}>
+              <option value="">Select a State</option>
+              {locationData.find(country => country.name === selectedCountry)?.states.map((state) => (
+                <option key={state.id} value={state.name}>
+                  {state.name}
+                </option>
+              ))}
+            </select>
+            <label>Town/City:</label>
+            <select className="form-control mb-2" value={selectedCity} onChange={handleCityChange}>
+              <option value="">Select a City</option>
+              {locationData.find(country => country.name === selectedCountry)?.states.find(state => state.name === selectedState)?.cities.map((city) => (
+                <option key={city.id} value={city.name}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+            <label>Postal Code:</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="candidateAddresses[0].postalCode"
+              value={candidate.candidateAddresses[0]?.postalCode || ""}
+              onChange={handleInputChange}
+            />
+            <label>Landline Number:</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="landlineNumber"
+              value={candidate.landlineNumber}
+              onChange={handleInputChange}
+            />
+            <label>Mobile Number:</label>
+            <input
+              type="text"
+              className="form-control mb-2"
+              name="mobileNumber"
+              value={candidate.mobileNumber}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="text-center mt-3">
+            <button className="btn btn-primary me-2" onClick={handleSave}>Save</button>
+            <button className="btn btn-secondary" onClick={handleBack}>Cancel</button>
+          </div>
+
         </div>
-      </>
-    )
-  }
-  else {
-    return (
-      <div className="container p-5" id="userPanelContainer">
-        <div className="row d-flex justify-content-center">
-          {loading ? (
-            <h1>Loading...</h1>
-          ) : (
-            <>
-              {candidate.isCandidate === true ? (
-                <h2 className="text-success">You are a Candidate.</h2>
-              ) : (
-                <h2 className="text-danger">You aren't a Candidate.</h2>
-              )}
-
-              {editing === true ? (
-                <>
-                  <div className="col-md-6 p-2 d-flex flex-column ">
-                    <label>First Name:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="firstName"
-                      value={candidate.firstName}
-                      onChange={handleInputChange}
-                    />
-
-                    <label>Middle Name:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="middleName"
-                      value={candidate.middleName}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Last Name:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="lastName"
-                      value={candidate.lastName}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Gender:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="gender"
-                      value={candidate.gender}
-                      onChange={handleInputChange}
-                    />
-
-                    <label>Native Language:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="nativeLanguage"
-                      value={candidate.nativeLanguage}
-
-                      onChange={handleInputChange}
-                    />
-
-                    <label>Birth Date:</label>
-                    <input
-                      type="date"
-                      className="form-control mb-2"
-                      name="birthDate"
-                      value={candidate.birthDate}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Photo ID Type:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="candidatePhotoIds[0].photoId"
-                      value={candidate.candidatePhotoIds[0].photoId}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Photo ID Number:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="candidatePhotoIds[0].photoIdnumber"
-                      value={candidate.candidatePhotoIds[0].photoIdnumber}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Photo ID Issue Date:</label>
-                    <input
-                      type="date"
-                      className="form-control mb-2"
-                      name="candidatePhotoIds[0].photoIdissueDate"
-                      value={candidate.candidatePhotoIds[0].photoIdissueDate}
-                      onChange={handleInputChange}
-
-                    />
-                  </div>
-                  <div className="col-md-6 p-2 d-flex flex-column ">
-                    <label>Email:</label>
-                    <input
-                      type="email"
-                      className="form-control mb-2"
-                      name="email"
-                      value={candidate.email}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Address:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="candidateAddresses[0].address"
-                      value={`${candidate.candidateAddresses[0].address} ${candidate.candidateAddresses[0].addressLine2}`}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Address2:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="candidateAddresses[0].addressLine2"
-                      value={`${candidate.candidateAddresses[0].addressLine2}`}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Country:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="candidateAddresses[0].countryOfResidence"
-                      value={candidate.candidateAddresses[0].countryOfResidence}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>State:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="candidateAddresses[0].stateTerritoryProvince"
-                      value={candidate.candidateAddresses[0].stateTerritoryProvince}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Town:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="candidateAddresses[0].townCity"
-                      value={candidate.candidateAddresses[0].townCity}
-                      onChange={handleInputChange}
-                    />
-
-                    <label>Postal Code:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="candidateAddresses[0].postalCode"
-                      value={candidate.candidateAddresses[0].postalCode}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Landline Number:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="landlineNumber"
-                      value={candidate.landlineNumber}
-                      onChange={handleInputChange}
-
-                    />
-
-                    <label>Mobile Number:</label>
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      name="mobileNumber"
-                      value={candidate.mobileNumber}
-                      onChange={handleInputChange}
-
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="col-md-6 p-2 d-flex flex-column justify-content-center">
-                    {console.log(candidate)}
-                    <p>
-                      First Name: <b>{candidate.firstName}</b>
-                    </p>
-                    <p>
-                      Middle Name: <b>{candidate.middleName}</b>
-                    </p>
-                    <p>
-                      Last Name: <b>{candidate.lastName}</b>
-                    </p>
-                    <p>
-                      Gender: <b>{candidate.gender}</b>
-                    </p>
-                    <p>
-                      Native Language: <b>{candidate.nativeLanguage}</b>
-                    </p>
-                    <p>
-                      Birth Date: <b>{candidate.birthDate}</b>
-                    </p>
-                    <p>
-
-                      Photo ID Type <b>{candidate.candidatePhotoIds[0].photoId}</b>
-                    </p>
-                    <p>
-                      Photo ID Number : <b>{candidate.candidatePhotoIds[0].photoIdnumber}</b>
-                    </p>
-                    <p>
-                      Photo ID Issue Date : <b>{candidate.candidatePhotoIds[0].photoIdissueDate}</b>
-                    </p>
-                  </div>
-                  <div className="col-md-6 p-2 d-flex flex-column justify-content-center">
-                    <p>
-                      Email: <b>{candidate.email}</b>
-                    </p>
-                    <p>
-                      Address :
-                      <b>
-                        {candidate.candidateAddresses[0].address}
-                      </b>
-                      Address Number :
-                      <b>
-                        {candidate.candidateAddresses[0].addressLine2}
-                      </b>
-                    </p>
-                    <p>
-                      Country : <b>{candidate.candidateAddresses[0].countryOfResidence}</b>
-                    </p>
-                    <p>
-                      State : <b>{candidate.candidateAddresses[0].stateTerritoryProvince}</b>
-                    </p>
-                    <p>
-                      Town : <b>{candidate.candidateAddresses[0].townCity}</b>
-                    </p>
-                    <p>
-                      Postal Code : <b>{candidate.candidateAddresses[0].postalCode}</b>
-                    </p>
-                    <p>
-                      Landline Number : <b>{candidate.landlineNumber}</b>
-                    </p>
-                    <p>
-                      Mobile Number : <b>{candidate.mobileNumber}</b>
-                    </p>
-                  </div>
-                </>
-              )}
-              {editing === true ?
-                (
-                  <>
-                    <button className="btn btn-save" style={{ width: "auto", paddingLeft: "1em", paddingRight: "1em" }} onClick={handleCandidateValid}>Save</button>
-                    <button className="btn btn-danger" style={{ width: "auto", paddingLeft: "1em", paddingRight: "1em" }} onClick={handleCancelEdit}>Cancel Edit</button>
-                  </>
-                )
-                :
-                (
-                  <button className="btn btn-add" style={{ width: "auto", paddingLeft: "1em", paddingRight: "1em" }} onClick={(e) => setEditing(true)}>Edit</button>
-                )
-              }
-            </>
-          )}
+      ) : (
+        // Display Mode
+        <div className="row">
+          <div className="col-md-6">
+            <p>First Name: <b>{candidate.firstName}</b></p>
+            <p>Middle Name: <b>{candidate.middleName}</b></p>
+            <p>Last Name: <b>{candidate.lastName}</b></p>
+            <p>Gender: <b>{genderOptions[candidate.gender]}</b></p>
+            <p>Native Language: <b>{candidate.nativeLanguage}</b></p>
+            <p>Birth Date: <b>{formatDate(candidate.birthDate)}</b></p>
+            <p>Photo ID Type: <b>{legaldocOptions[candidate.candidatePhotoIds[0]?.photoIdtype]}</b></p>
+            <p>Photo ID Number: <b>{candidate.candidatePhotoIds[0].photoIdnumber}</b></p>
+            <p>Photo ID Issue Date: <b>{formatDate(candidate.candidatePhotoIds[0].photoIdissueDate)}</b></p>
+          </div>
+          <div className="col-md-6">
+            <p>Email: <b>{candidate.email}</b></p>
+            <p>Address: <b>{candidate.candidateAddresses[0].address}</b></p>
+            <p>Address Line 2: <b>{candidate.candidateAddresses[0].addressLine2}</b></p>
+            <p>Country: <b>{candidate.candidateAddresses[0].countryOfResidence}</b></p>
+            <p>State/Territory/Province: <b>{candidate.candidateAddresses[0].stateTerritoryProvince}</b></p>
+            <p>Town/City: <b>{candidate.candidateAddresses[0].townCity}</b></p>
+            <p>Postal Code: <b>{candidate.candidateAddresses[0].postalCode}</b></p>
+            <p>Landline Number: <b>{candidate.landlineNumber}</b></p>
+            <p>Mobile Number: <b>{candidate.mobileNumber}</b></p>
+          </div>
+          <div className="col-md-12 text-center mt-3">
+            <button className="btn btn-warning me-2" onClick={() => setEditing(true)}>Edit</button>
+            <button className="btn btn-secondary ms-2" onClick={() => navigate(-1)}>Back</button>
+          </div>
+          <button className="btn btn-info mb-2" onClick={() => navigate('/cp/changecreds')}>Change your User Credentials</button>
         </div>
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
 };
 
-export default UserControlPanel;
-
+export default CandidateDetails;

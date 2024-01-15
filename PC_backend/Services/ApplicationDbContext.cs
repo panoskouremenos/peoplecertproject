@@ -38,6 +38,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<Question> Questions { get; set; }
 
+    public virtual DbSet<UserCertificatePurchase> UserCertificatePurchases { get; set; }
+
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
     public virtual DbSet<Usertbl> Usertbls { get; set; }
@@ -49,7 +51,7 @@ public partial class ApplicationDbContext : DbContext
     {
         modelBuilder.Entity<Candidate>(entity =>
         {
-            entity.HasKey(e => e.CandidateId).HasName("PK__Candidat__DF539BFC22761545");
+            entity.HasKey(e => e.CandidateId).HasName("PK__Candidat__DF539BFC7405098D");
 
             entity.HasIndex(e => new { e.FirstName, e.LastName }, "idx_candidate_name");
 
@@ -86,7 +88,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CandidateAddress>(entity =>
         {
-            entity.HasKey(e => e.AddressId).HasName("PK__Candidat__091C2A1B256B1923");
+            entity.HasKey(e => e.AddressId).HasName("PK__Candidat__091C2A1BC046CB31");
 
             entity.ToTable("CandidateAddress");
 
@@ -118,7 +120,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CandidatePhotoId>(entity =>
         {
-            entity.HasKey(e => e.PhotoId).HasName("PK__Candidat__21B7B582D8A506D5");
+            entity.HasKey(e => e.PhotoId).HasName("PK__Candidat__21B7B5828E300789");
 
             entity.ToTable("CandidatePhotoID");
 
@@ -140,7 +142,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Certificate>(entity =>
         {
-            entity.HasKey(e => e.CertificateId).HasName("PK__Certific__BBF8A7E19C7033DC");
+            entity.HasKey(e => e.CertificateId).HasName("PK__Certific__BBF8A7E1C31C1AE2");
 
             entity.ToTable("Certificate");
 
@@ -150,6 +152,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.AssessmentTestCode)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+            entity.Property(e => e.Deleted).HasDefaultValueSql("((0))");
             entity.Property(e => e.Title)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -157,36 +160,43 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CertificateTopicMark>(entity =>
         {
-            entity.HasKey(e => e.CertificateTopicMarksId).HasName("PK__Certific__2C7F098636C56B22");
+            entity.HasKey(e => e.CertificateTopicMarksId).HasName("PK__Certific__2C7F0986886A2470");
 
             entity.Property(e => e.CertificateTopicMarksId).HasColumnName("CertificateTopicMarksID");
             entity.Property(e => e.CertificateId).HasColumnName("CertificateID");
+            entity.Property(e => e.NumberOfAwardedMarks).HasDefaultValueSql("((0))");
+            entity.Property(e => e.NumberOfPossibleMarks).HasDefaultValueSql("((0))");
             entity.Property(e => e.TopicDesc)
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Certificate).WithMany(p => p.CertificateTopicMarks)
                 .HasForeignKey(d => d.CertificateId)
-                .HasConstraintName("FK__Certifica__Certi__4AB81AF0");
+                .HasConstraintName("FK__Certifica__Certi__4D94879B");
         });
 
         modelBuilder.Entity<EshopProduct>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__EshopPro__B40CC6ED8E9A104C");
+            entity.HasKey(e => e.ProductId).HasName("PK__EshopPro__B40CC6ED35258E8D");
 
             entity.ToTable("EshopProduct");
 
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.CertificateId).HasColumnName("CertificateID");
             entity.Property(e => e.Deleted).HasDefaultValueSql("((0))");
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.ProductName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.Certificate).WithMany(p => p.EshopProducts)
+                .HasForeignKey(d => d.CertificateId)
+                .HasConstraintName("FK__EshopProd__Delet__5441852A");
         });
 
         modelBuilder.Entity<Exam>(entity =>
         {
-            entity.HasKey(e => e.ExamId).HasName("PK__Exam__297521A76A438291");
+            entity.HasKey(e => e.ExamId).HasName("PK__Exam__297521A7F6D94E92");
 
             entity.ToTable("Exam");
 
@@ -194,21 +204,21 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.ExamId).HasColumnName("ExamID");
             entity.Property(e => e.CandidateId).HasColumnName("CandidateID");
-            entity.Property(e => e.CertificateId).HasColumnName("CertificateID");
-            entity.Property(e => e.DateAssigned).HasColumnType("date");
+            entity.Property(e => e.DateAssigned).HasColumnType("datetime");
+            entity.Property(e => e.VoucherId).HasColumnName("VoucherID");
 
             entity.HasOne(d => d.Candidate).WithMany(p => p.Exams)
                 .HasForeignKey(d => d.CandidateId)
-                .HasConstraintName("FK__Exam__CandidateI__5070F446");
+                .HasConstraintName("FK__Exam__CandidateI__5BE2A6F2");
 
-            entity.HasOne(d => d.Certificate).WithMany(p => p.Exams)
-                .HasForeignKey(d => d.CertificateId)
-                .HasConstraintName("FK__Exam__Certificat__5165187F");
+            entity.HasOne(d => d.Voucher).WithMany(p => p.Exams)
+                .HasForeignKey(d => d.VoucherId)
+                .HasConstraintName("FK__Exam__VoucherID__5CD6CB2B");
         });
 
         modelBuilder.Entity<ExamCandAnswer>(entity =>
         {
-            entity.HasKey(e => e.ExamCandAnswerId).HasName("PK__ExamCand__0FEE60D5FD59EFB3");
+            entity.HasKey(e => e.ExamCandAnswerId).HasName("PK__ExamCand__0FEE60D57C0E3F17");
 
             entity.ToTable("ExamCandAnswer");
 
@@ -217,58 +227,52 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasOne(d => d.Question).WithMany(p => p.ExamCandAnswers)
                 .HasForeignKey(d => d.QuestionId)
-                .HasConstraintName("FK__ExamCandA__Quest__5FB337D6");
+                .HasConstraintName("FK__ExamCandA__Quest__66603565");
 
             entity.HasOne(d => d.Result).WithMany(p => p.ExamCandAnswers)
                 .HasForeignKey(d => d.ResultId)
-                .HasConstraintName("FK__ExamCandA__Resul__60A75C0F");
+                .HasConstraintName("FK__ExamCandA__Resul__6754599E");
         });
 
         modelBuilder.Entity<ExamResult>(entity =>
         {
-            entity.HasKey(e => e.ResultId).HasName("PK__ExamResu__97690228F561245A");
+            entity.HasKey(e => e.ResultId).HasName("PK__ExamResu__97690228894DE477");
 
             entity.ToTable("ExamResult");
 
             entity.Property(e => e.ResultId).HasColumnName("ResultID");
             entity.Property(e => e.ExamId).HasColumnName("ExamID");
-            entity.Property(e => e.ResultDate).HasColumnType("date");
+            entity.Property(e => e.ResultDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Exam).WithMany(p => p.ExamResults)
                 .HasForeignKey(d => d.ExamId)
-                .HasConstraintName("FK__ExamResul__ExamI__5441852A");
+                .HasConstraintName("FK__ExamResul__ExamI__5FB337D6");
         });
 
         modelBuilder.Entity<ExamVoucher>(entity =>
         {
-            entity.HasKey(e => e.VoucherId).HasName("PK__ExamVouc__3AEE79C191182671");
+            entity.HasKey(e => e.VoucherId).HasName("PK__ExamVouc__3AEE79C1A13BE1C1");
 
             entity.ToTable("ExamVoucher");
 
             entity.Property(e => e.VoucherId).HasColumnName("VoucherID");
             entity.Property(e => e.CandidateId).HasColumnName("CandidateID");
             entity.Property(e => e.CertificateId).HasColumnName("CertificateID");
-            entity.Property(e => e.ExamDate).HasColumnType("date");
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
-            entity.Property(e => e.PurchaseDate).HasColumnType("date");
             entity.Property(e => e.VoucherCode).HasDefaultValueSql("(newid())");
 
             entity.HasOne(d => d.Candidate).WithMany(p => p.ExamVouchers)
                 .HasForeignKey(d => d.CandidateId)
-                .HasConstraintName("FK__ExamVouch__Candi__5BE2A6F2");
-
-            entity.HasOne(d => d.Certificate).WithMany(p => p.ExamVouchers)
-                .HasForeignKey(d => d.CertificateId)
-                .HasConstraintName("FK__ExamVouch__Certi__5CD6CB2B");
+                .HasConstraintName("FK__ExamVouch__Candi__59063A47");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ExamVouchers)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__ExamVouch__Produ__5AEE82B9");
+                .HasConstraintName("FK__ExamVouch__Produ__5812160E");
         });
 
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.QuestionId).HasName("PK__Question__0DC06F8C9CAEFAB8");
+            entity.HasKey(e => e.QuestionId).HasName("PK__Question__0DC06F8C4FE2B608");
 
             entity.ToTable("Question");
 
@@ -277,12 +281,32 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasOne(d => d.CertificateTopicMarks).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.CertificateTopicMarksId)
-                .HasConstraintName("FK__Question__Answer__4D94879B");
+                .HasConstraintName("FK__Question__Answer__5070F446");
+        });
+
+        modelBuilder.Entity<UserCertificatePurchase>(entity =>
+        {
+            entity.HasKey(e => e.PurchaseId).HasName("PK__UserCert__6B0A6BDE01E566C9");
+
+            entity.ToTable("UserCertificatePurchase");
+
+            entity.Property(e => e.PurchaseId).HasColumnName("PurchaseID");
+            entity.Property(e => e.CandidateId).HasColumnName("CandidateID");
+            entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.PurchaseDate).HasColumnType("date");
+
+            entity.HasOne(d => d.Candidate).WithMany(p => p.UserCertificatePurchases)
+                .HasForeignKey(d => d.CandidateId)
+                .HasConstraintName("FK__UserCerti__Candi__628FA481");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.UserCertificatePurchases)
+                .HasForeignKey(d => d.ProductId)
+                .HasConstraintName("FK__UserCerti__Produ__6383C8BA");
         });
 
         modelBuilder.Entity<UserRole>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__UserRole__8AFACE3AB345423D");
+            entity.HasKey(e => e.RoleId).HasName("PK__UserRole__8AFACE3A24116D85");
 
             entity.ToTable("UserRole");
 
@@ -297,7 +321,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Usertbl>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Usertbl__1788CCAC262C77D4");
+            entity.HasKey(e => e.UserId).HasName("PK__Usertbl__1788CCACBB701B35");
 
             entity.ToTable("Usertbl");
 

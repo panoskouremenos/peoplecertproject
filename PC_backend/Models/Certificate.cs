@@ -15,9 +15,9 @@ public partial class Certificate
 
     public int? MaximumScore { get; set; }
 
+    public bool? Deleted { get; set; }
+
     public virtual ICollection<CertificateTopicMark> CertificateTopicMarks { get; set; } = new List<CertificateTopicMark>();
 
-    public virtual ICollection<ExamVoucher> ExamVouchers { get; set; } = new List<ExamVoucher>();
-
-    public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
+    public virtual ICollection<EshopProduct> EshopProducts { get; set; } = new List<EshopProduct>();
 }

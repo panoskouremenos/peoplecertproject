@@ -2,7 +2,7 @@
 {
     public class ExamUpdatedto
     {
-        public int? CandidateId { get; set; }
+        public int CandidateId { get; set; }
 
         public DateTime? DateAssigned { get; set; }
 

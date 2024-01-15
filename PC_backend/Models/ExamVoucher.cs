@@ -13,17 +13,13 @@ public partial class ExamVoucher
 
     public int? CertificateId { get; set; }
 
-    public DateTime? PurchaseDate { get; set; }
-
     public Guid? VoucherCode { get; set; }
-
-    public DateTime? ExamDate { get; set; }
 
     public bool? IsUsed { get; set; }
 
     public virtual Candidate? Candidate { get; set; }
 
-    public virtual Certificate? Certificate { get; set; }
+    public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 
     public virtual EshopProduct? Product { get; set; }
 }

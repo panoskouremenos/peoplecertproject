@@ -13,10 +13,11 @@ const EShopPage = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5888/api/EshopProducts", {
+      const response = await fetch("https://localhost:5888/api/EshopProducts", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -37,11 +38,11 @@ const EShopPage = () => {
 
   const fetchUserProducts = async (token) => {
     try {
-      const response = await fetch("http://localhost:5888/api/user/certificates", {
+      const response = await fetch("https://localhost:5888/api/EshopProducts", {
         method: "GET",
         headers: {
-          "Authorization": token,
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -154,11 +155,11 @@ const EShopPage = () => {
   
     if (productsToPurchase.length > 0) {
       try {
-        const response = await fetch("http://localhost:3001/api/certificates/buy", {
+        const response = await fetch("https://localhost:5888/api/EshopProducts", {
           method: "POST",
           headers: {
-            Authorization: token,
             "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
             products: productsToPurchase,

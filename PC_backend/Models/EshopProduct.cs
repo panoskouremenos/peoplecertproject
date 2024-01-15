@@ -7,6 +7,8 @@ public partial class EshopProduct
 {
     public int ProductId { get; set; }
 
+    public int? CertificateId { get; set; }
+
     public string? ProductName { get; set; }
 
     public string? Description { get; set; }
@@ -17,5 +19,9 @@ public partial class EshopProduct
 
     public bool? Deleted { get; set; }
 
+    public virtual Certificate? Certificate { get; set; }
+
     public virtual ICollection<ExamVoucher> ExamVouchers { get; set; } = new List<ExamVoucher>();
+
+    public virtual ICollection<UserCertificatePurchase> UserCertificatePurchases { get; set; } = new List<UserCertificatePurchase>();
 }

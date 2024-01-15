@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PC_backend.Dto;
 using PC_backend.Models;
 using PC_backend.Services;
+using Microsoft.AspNetCore.Authorization;
+using PC_backend.Utilities;
 
 namespace PC_backend.Controllers
 {
@@ -55,32 +58,187 @@ namespace PC_backend.Controllers
            // return Ok(examResultDto);
         }
 
-        // PUT: api/ExamResults/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public IActionResult PutExamResult(int id, ExamResultdto examResultdto)
-        {
-            var examResult =_context.ExamResults.FirstOrDefault(c=>c.ResultId == id);
-            
-            if (examResult == null)
-            {
-                return NotFound();
-            }
 
-            examResult.ExamId = examResultdto.ExamId;
-            examResult.Score = examResultdto.Score;
-            examResult.ResultDate = examResultdto.ResultDate;
-            examResult.Passed = examResultdto.Passed;
+		[Authorize]
+		[HttpGet("UserCertificates")]
+		public async Task<IActionResult> UserCertificates()
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized(new { message = "User ID is missing in the token." });
+			}
 
-            _context.SaveChanges();
-            return Ok(examResult);
+		var userId = int.Parse(userIdClaim.Value);
 
+			// Query the database to find the candidate associated with this user ID
+			var candidate = await _context.Candidates
+				.FirstOrDefaultAsync(c => c.UserId == userId);
+
+			if (candidate == null)
+			{
+				return Ok(new { message = "User is not a candidate" });
+			}
+
+            int CandId = candidate.CandidateId;
+
+
+            var passedCertificates = _context.ExamResults
+                .Include(er => er.Exam)
+                .ThenInclude(exam => exam.Certificate)
+                .Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == true)
+                .Select(er => new
+                {
+                    CertificateTitle = er.Exam.Certificate.Title,
+                    ExamDate = er.ResultDate,
+                    FirstName = er.Exam.Candidate.FirstName,
+					LastName = er.Exam.Candidate.LastName,
+					Score = er.Score,
+                    MaxScore = er.Exam.Certificate.MaximumScore
+                })
+                .ToList()
+                .Select(pc => new PassedCertificateDto
+                {
+	                CertificateTitle = pc.CertificateTitle,
+	                ExamDate = pc.ExamDate,
+					FirstName = pc.FirstName,
+					LastName = pc.LastName,
+					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
+                })
+                .Distinct()
+                .ToList();
+
+			return Ok(passedCertificates);
 
         }
+        [Authorize]
+        [HttpGet("UserFailures")]
+        public async Task<IActionResult> UserFailures ()
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized(new { message = "User ID is missing in the token." });
+			}
 
-        // POST: api/ExamResults
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+			var userId = int.Parse(userIdClaim.Value);
+
+			var candidate = await _context.Candidates
+				.FirstOrDefaultAsync(c => c.UserId == userId);
+
+			if (candidate == null)
+			{
+				return Ok(new { message = "User is not a candidate" });
+			}
+
+			int CandId = candidate.CandidateId;
+
+
+			var passedCertificates = _context.ExamResults
+				.Include(er => er.Exam)
+				.ThenInclude(exam => exam.Certificate)
+				.Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == false)
+				.Select(er => new
+				{
+					CertificateTitle = er.Exam.Certificate.Title,
+					ExamDate = er.ResultDate,
+					FirstName = er.Exam.Candidate.FirstName,
+					LastName = er.Exam.Candidate.LastName,
+					Score = er.Score,
+					MaxScore = er.Exam.Certificate.MaximumScore
+				})
+				.ToList()
+				.Select(pc => new PassedCertificateDto
+				{
+					CertificateTitle = pc.CertificateTitle,
+					ExamDate = pc.ExamDate,
+					FirstName = pc.FirstName,
+					LastName = pc.LastName,
+					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
+				})
+				.Distinct()
+				.ToList();
+
+			return Ok(passedCertificates);
+
+		}
+
+		[Authorize]
+		[HttpGet("MyExamResults")]
+		public async Task<IActionResult> MyExamResults()
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized(new { message = "User ID is missing in the token." });
+			}
+
+			var userId = int.Parse(userIdClaim.Value);
+
+			var candidate = await _context.Candidates
+				.FirstOrDefaultAsync(c => c.UserId == userId);
+
+			if (candidate == null)
+			{
+				return Ok(new { message = "User is not a candidate" });
+			}
+
+			int CandId = candidate.CandidateId;
+
+
+			var ExamHistory = _context.ExamResults
+				.Include(er => er.Exam)
+				.ThenInclude(exam => exam.Certificate)
+				.Where(er => er.Exam.CandidateId == candidate.CandidateId)
+				.Select(er => new
+				{
+					CertificateTitle = er.Exam.Certificate.Title,
+					ExamDate = er.ResultDate,
+					Passed = er.Passed,
+					Score = er.Score,
+					MaxScore = er.Exam.Certificate.MaximumScore
+				})
+				.ToList()
+				.Select(pc => new PassedCertificateDto
+				{
+					CertificateTitle = pc.CertificateTitle,
+					ExamDate = pc.ExamDate,
+					Passed = pc.Passed,
+					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
+				})
+				.Distinct()
+				.ToList();
+
+			return Ok(ExamHistory);
+
+		}
+
+
+		// PUT: api/ExamResults/5
+		//[HttpPut("{id}")]
+		//      public IActionResult PutExamResult(int id, ExamResultdto examResultdto)
+		//      {
+		//          var examResult =_context.ExamResults.FirstOrDefault(c=>c.ResultId == id);
+
+		//          if (examResult == null)
+		//          {
+		//              return NotFound();
+		//          }
+
+		//          examResult.ExamId = examResultdto.ExamId;
+		//          examResult.Score = examResultdto.Score;
+		//          examResult.ResultDate = examResultdto.ResultDate;
+		//          examResult.Passed = examResultdto.Passed;
+
+		//          _context.SaveChanges();
+		//          return Ok(examResult);
+
+
+		//      }
+
+		// POST: api/ExamResults
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
         public IActionResult PostExamResult(ExamResultdto examResultdto)
         {
           if (_context.ExamResults == null)

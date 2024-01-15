@@ -36,4 +36,6 @@ public partial class Candidate
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 
     public virtual Usertbl? User { get; set; }
+
+    public virtual ICollection<UserCertificatePurchase> UserCertificatePurchases { get; set; } = new List<UserCertificatePurchase>();
 }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PC_backend.Models;
 using PC_backend.Services;
 using PC_backend.Dto;
+using Newtonsoft.Json;
 
 namespace PC_backend.Controllers
 {
@@ -66,10 +67,11 @@ namespace PC_backend.Controllers
             }
             return candidate;
         }
+
 		/// <summary>
 		/// Gets the infos of all candidates in existence. (for Admin use)
 		/// </summary>
-		[Authorize(Roles = "2")]
+		[Authorize(Roles = "1")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Candidate>>> GetAll()
         {
@@ -155,7 +157,7 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Accepts the candidate's id, deletes the candidate and whatever info is joined with his in CandidateAddresses and CandidatePhotoIds.
 		/// </summary>
-		[Authorize(Roles = "2")]
+		[Authorize(Roles = "1")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -185,7 +187,8 @@ namespace PC_backend.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] CandidateUpdateDto candidateUpdateDto)
         {
-            if (!ModelState.IsValid)
+			Console.WriteLine(JsonConvert.SerializeObject(candidateUpdateDto));
+			if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -217,7 +220,6 @@ namespace PC_backend.Controllers
             candidate.MobileNumber = candidateUpdateDto.MobileNumber;
 
             _context.CandidateAddresses.RemoveRange(candidate.CandidateAddresses);
-            Console.WriteLine(candidateUpdateDto.Addresses);
             foreach (var addressDto in candidateUpdateDto.Addresses)
             {
                 var address = new CandidateAddress
@@ -257,6 +259,7 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Updates the information of a candidate with a certain ID, made for admin use.
 		/// </summary>
+	   [Authorize(Roles = "1")]
 		[HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CandidateUpdateDto candidateUpdateDto)
         {

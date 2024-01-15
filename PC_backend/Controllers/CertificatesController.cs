@@ -71,7 +71,6 @@ namespace PC_backend.Controllers
         public IActionResult PutCertificate(int id, Certificatedto certificatedto)
         {
             var certificate = _context.Certificates
-                .Include(c=>c.CertificateTopicMarks)
                 .FirstOrDefault (c=>c.CertificateId == id);
 
             if (certificate == null)
