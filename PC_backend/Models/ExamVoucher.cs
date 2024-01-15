@@ -19,6 +19,8 @@ public partial class ExamVoucher
 
     public virtual Candidate? Candidate { get; set; }
 
+    public virtual Certificate? Certificate { get; set; }
+
     public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
 
     public virtual EshopProduct? Product { get; set; }

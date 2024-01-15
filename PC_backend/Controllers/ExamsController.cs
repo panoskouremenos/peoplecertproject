@@ -67,9 +67,9 @@ namespace PC_backend.Controllers
                 return NotFound();
             }
 
-            exam.CandidateId = examUpdatedto.CandidateId;
-            exam.CertificateId = examUpdatedto.CertificateId;
-            exam.DateAssigned = examUpdatedto.DateAssigned;
+            //exam.CandidateId = examUpdatedto.CandidateId;
+            //exam.CertificateId = examUpdatedto.CertificateId;
+            //exam.DateAssigned = examUpdatedto.DateAssigned;
 
             // Clear existing ExamResults 
            // exam.ExamResults.Clear();
@@ -89,27 +89,26 @@ namespace PC_backend.Controllers
 
         }
 
-        // POST: api/Exams
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public IActionResult PostExam(Examdto examdto)
-        {
-            Exam exam = new Exam()
-            {
-                CandidateId = examdto.CandidateId,
-                CertificateId = examdto.CertificateId,
-                DateAssigned = examdto.DateAssigned,
-            };
-           
+		// POST: api/Exams
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
+		public IActionResult PostExam(Examdto examdto)
+		{
+			Exam exam = new Exam
+			{
+				CandidateId = examdto.CandidateId,
+				VoucherId = examdto.VoucherId,
+				DateAssigned = examdto.DateAssigned
+			};
 
-            _context.Exams.Add(exam);
-            _context.SaveChanges();
+			_context.Exams.Add(exam);
+			_context.SaveChanges();
 
-            return Ok(exam);
-        }
+			return Ok(exam);
+		}
 
-        // DELETE: api/Exams/5
-        [HttpDelete("{id}")]
+		// DELETE: api/Exams/5
+		[HttpDelete("{id}")]
         public IActionResult DeleteExam(int id)
         {
             if (_context.Exams == null)

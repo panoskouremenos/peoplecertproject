@@ -9,9 +9,9 @@ public partial class ExamResult
 
     public int? ExamId { get; set; }
 
-    public int? Score { get; set; }
+    public int Score { get; set; }
 
-    public DateTime? ResultDate { get; set; }
+    public DateTime ResultDate { get; set; }
 
     public bool? Passed { get; set; }
 

@@ -58,110 +58,57 @@ namespace PC_backend.Controllers
            // return Ok(examResultDto);
         }
 
+[Authorize]
+[HttpGet("UserCertificates")]
+public async Task<IActionResult> UserCertificates()
+{
+    var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+    if (userIdClaim == null)
+    {
+        return Unauthorized(new { message = "User ID is missing in the token." });
+    }
 
-		[Authorize]
-		[HttpGet("UserCertificates")]
-		public async Task<IActionResult> UserCertificates()
-		{
-			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
-			if (userIdClaim == null)
-			{
-				return Unauthorized(new { message = "User ID is missing in the token." });
-			}
+    var userId = int.Parse(userIdClaim.Value);
 
-		var userId = int.Parse(userIdClaim.Value);
+    // Query the database to find the candidate associated with this user ID
+    var candidate = await _context.Candidates
+        .FirstOrDefaultAsync(c => c.UserId == userId);
 
-			// Query the database to find the candidate associated with this user ID
-			var candidate = await _context.Candidates
-				.FirstOrDefaultAsync(c => c.UserId == userId);
+    if (candidate == null)
+    {
+        return Ok(new { message = "User is not a candidate" });
+    }
 
-			if (candidate == null)
-			{
-				return Ok(new { message = "User is not a candidate" });
-			}
+    int CandId = candidate.CandidateId;
 
-            int CandId = candidate.CandidateId;
+    var passedCertificates = _context.ExamResults
+        .Include(er => er.Exam)
+        .ThenInclude(exam => exam.Voucher)
+        .ThenInclude(voucher => voucher.Certificate)
+        .Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == true)
+        .Select(er => new
+        {
+            CertificateTitle = er.Exam.Voucher.Certificate.Title,
+            ExamDate = er.ResultDate,
+            FirstName = candidate.FirstName,
+            LastName = candidate.LastName,
+            Score = er.Score,
+            MaxScore = er.Exam.Voucher.Certificate.MaximumScore
+        })
+        .ToList()
+        .Select(pc => new PassedCertificateDto
+        {
+            CertificateTitle = pc.CertificateTitle,
+            ExamDate = pc.ExamDate,
+            FirstName = pc.FirstName,
+            LastName = pc.LastName,
+            ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
+        })
+        .Distinct()
+        .ToList();
 
-
-            var passedCertificates = _context.ExamResults
-                .Include(er => er.Exam)
-                .ThenInclude(exam => exam.Certificate)
-                .Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == true)
-                .Select(er => new
-                {
-                    CertificateTitle = er.Exam.Certificate.Title,
-                    ExamDate = er.ResultDate,
-                    FirstName = er.Exam.Candidate.FirstName,
-					LastName = er.Exam.Candidate.LastName,
-					Score = er.Score,
-                    MaxScore = er.Exam.Certificate.MaximumScore
-                })
-                .ToList()
-                .Select(pc => new PassedCertificateDto
-                {
-	                CertificateTitle = pc.CertificateTitle,
-	                ExamDate = pc.ExamDate,
-					FirstName = pc.FirstName,
-					LastName = pc.LastName,
-					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
-                })
-                .Distinct()
-                .ToList();
-
-			return Ok(passedCertificates);
-
-        }
-        [Authorize]
-        [HttpGet("UserFailures")]
-        public async Task<IActionResult> UserFailures ()
-		{
-			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
-			if (userIdClaim == null)
-			{
-				return Unauthorized(new { message = "User ID is missing in the token." });
-			}
-
-			var userId = int.Parse(userIdClaim.Value);
-
-			var candidate = await _context.Candidates
-				.FirstOrDefaultAsync(c => c.UserId == userId);
-
-			if (candidate == null)
-			{
-				return Ok(new { message = "User is not a candidate" });
-			}
-
-			int CandId = candidate.CandidateId;
-
-
-			var passedCertificates = _context.ExamResults
-				.Include(er => er.Exam)
-				.ThenInclude(exam => exam.Certificate)
-				.Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == false)
-				.Select(er => new
-				{
-					CertificateTitle = er.Exam.Certificate.Title,
-					ExamDate = er.ResultDate,
-					FirstName = er.Exam.Candidate.FirstName,
-					LastName = er.Exam.Candidate.LastName,
-					Score = er.Score,
-					MaxScore = er.Exam.Certificate.MaximumScore
-				})
-				.ToList()
-				.Select(pc => new PassedCertificateDto
-				{
-					CertificateTitle = pc.CertificateTitle,
-					ExamDate = pc.ExamDate,
-					FirstName = pc.FirstName,
-					LastName = pc.LastName,
-					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
-				})
-				.Distinct()
-				.ToList();
-
-			return Ok(passedCertificates);
-
-		}
+    return Ok(passedCertificates);
+}
 
 		[Authorize]
 		[HttpGet("MyExamResults")]
@@ -175,6 +122,7 @@ namespace PC_backend.Controllers
 
 			var userId = int.Parse(userIdClaim.Value);
 
+			// Query the database to find the candidate associated with this user ID
 			var candidate = await _context.Candidates
 				.FirstOrDefaultAsync(c => c.UserId == userId);
 
@@ -185,32 +133,32 @@ namespace PC_backend.Controllers
 
 			int CandId = candidate.CandidateId;
 
-
-			var ExamHistory = _context.ExamResults
+			var passedCertificates = _context.ExamResults
 				.Include(er => er.Exam)
-				.ThenInclude(exam => exam.Certificate)
-				.Where(er => er.Exam.CandidateId == candidate.CandidateId)
+				.ThenInclude(exam => exam.Voucher)
+				.ThenInclude(voucher => voucher.Certificate)
+				.Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == true)
 				.Select(er => new
 				{
-					CertificateTitle = er.Exam.Certificate.Title,
+					CertificateTitle = er.Exam.Voucher.Certificate.Title,
 					ExamDate = er.ResultDate,
-					Passed = er.Passed,
+					FirstName = candidate.FirstName,
+					LastName = candidate.LastName,
 					Score = er.Score,
-					MaxScore = er.Exam.Certificate.MaximumScore
+					MaxScore = er.Exam.Voucher.Certificate.MaximumScore
 				})
 				.ToList()
 				.Select(pc => new PassedCertificateDto
 				{
 					CertificateTitle = pc.CertificateTitle,
 					ExamDate = pc.ExamDate,
-					Passed = pc.Passed,
+					FirstName = pc.FirstName,
+					LastName = pc.LastName,
 					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
 				})
 				.Distinct()
 				.ToList();
-
-			return Ok(ExamHistory);
-
+		return Ok(passedCertificates);
 		}
 
 
