@@ -101,6 +101,30 @@ namespace PC_backend.Controllers
             _context.ExamVouchers.Add(examVoucher);
             _context.SaveChanges();
 
+            Exam exam = new Exam()
+            {
+                CandidateId = examVoucherdto.CandidateId,
+                CertificateId = examVoucherdto.CertificateId,
+                VoucherId = examVoucher.VoucherId,
+                DateAssigned = DateTime.Now // Set to the current date or any date you prefer
+            };
+
+            _context.Exams.Add(exam);
+            _context.SaveChanges();
+
+            // Create ExamResult
+            ExamResult examResult = new ExamResult()
+            {
+                ExamId = exam.ExamId,
+                Score = 0,
+                ResultDate = DateTime.Now
+
+
+            };
+
+            _context.ExamResults.Add(examResult);
+            _context.SaveChanges();
+
             return Ok(examVoucher);
 
         }

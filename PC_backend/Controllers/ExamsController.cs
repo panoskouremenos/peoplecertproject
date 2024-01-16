@@ -98,7 +98,8 @@ namespace PC_backend.Controllers
 			{
 				CandidateId = examdto.CandidateId,
 				VoucherId = examdto.VoucherId,
-				DateAssigned = examdto.DateAssigned
+                CertificateId = examdto.CertificateId,
+                DateAssigned = examdto.DateAssigned
 			};
 
 			_context.Exams.Add(exam);
@@ -108,7 +109,7 @@ namespace PC_backend.Controllers
             {
                 ExamId = exam.ExamId,
                 Score = 0,
-                ResultDate = DateTime.Now,
+                ResultDate = DateTime.Now
                
             };
 

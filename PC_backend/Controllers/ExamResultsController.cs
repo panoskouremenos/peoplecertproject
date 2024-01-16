@@ -34,7 +34,21 @@ namespace PC_backend.Controllers
               return NotFound();
           }
 
-            return Ok(_context.ExamResults);
+            var resultDtos = _context.ExamResults
+         .Select(er => new
+         {
+             resultId = er.ResultId,
+             examId = er.ExamId,
+             score = er.Score,
+             resultDate = er.ResultDate,
+             passed = er.Passed,
+             //exam = er.Exam, // Include other properties if needed
+            // examCandAnswers = er.ExamCandAnswers // Include other properties if needed
+         })
+         .ToList();
+
+            return Ok(resultDtos);
+          //  return Ok(_context.ExamResults);
         }
 
         // GET: api/ExamResults/5
@@ -100,7 +114,7 @@ public async Task<IActionResult> UserCertificates()
         .Select(pc => new PassedCertificateDto
         {
             CertificateTitle = pc.CertificateTitle,
-            ExamDate = pc.ExamDate,
+            ExamDate = (DateTime)pc.ExamDate,
             FirstName = pc.FirstName,
             LastName = pc.LastName,
             ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
@@ -154,10 +168,10 @@ public async Task<IActionResult> UserCertificates()
 				.Select(pc => new PassedCertificateDto
 				{
 					CertificateTitle = pc.CertificateTitle,
-					ExamDate = pc.ExamDate,
+					ExamDate = (DateTime)pc.ExamDate,
 					FirstName = pc.FirstName,
 					LastName = pc.LastName,
-					Passed = pc.Passed,
+					Passed = (bool)pc.Passed,
 					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
 				})
 				.Distinct()
