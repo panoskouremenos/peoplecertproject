@@ -58,6 +58,7 @@ namespace PC_backend.Controllers
                 return NotFound();
             }
             eshopProduct.ProductName = eshopProductDto.ProductName;
+            eshopProduct.CertificateId = eshopProductDto.CertificateId;
             eshopProduct.Description = eshopProductDto.Description;
             eshopProduct.Price = eshopProductDto.Price;
             eshopProduct.AvailableStock = eshopProductDto.AvailableStock;
@@ -78,6 +79,7 @@ namespace PC_backend.Controllers
             EshopProduct eshopProduct = new EshopProduct()
             {
                 ProductName = eshopProductDto.ProductName,
+                CertificateId = eshopProductDto.CertificateId,
                 Description = eshopProductDto.Description,
                 Price = eshopProductDto.Price,
                 AvailableStock = eshopProductDto.AvailableStock,

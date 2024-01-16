@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace PC_backend.Models;
 
@@ -15,6 +16,7 @@ public partial class Question
 
     public string? PossibleAnswers { get; set; }
 
+    [JsonIgnore]
     public string? Answer { get; set; }
 
     public virtual CertificateTopicMark? CertificateTopicMarks { get; set; }
