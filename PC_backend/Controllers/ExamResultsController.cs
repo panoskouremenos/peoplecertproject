@@ -135,9 +135,10 @@ public async Task<IActionResult> UserCertificates()
 
 			var passedCertificates = _context.ExamResults
 				.Include(er => er.Exam)
+				.Include(er => er.Exam)
 				.ThenInclude(exam => exam.Voucher)
 				.ThenInclude(voucher => voucher.Certificate)
-				.Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == true)
+				.Where(er => er.Exam.CandidateId == candidate.CandidateId)
 				.Select(er => new
 				{
 					CertificateTitle = er.Exam.Voucher.Certificate.Title,
@@ -145,6 +146,7 @@ public async Task<IActionResult> UserCertificates()
 					FirstName = candidate.FirstName,
 					LastName = candidate.LastName,
 					Score = er.Score,
+                    Passed = er.Passed,
 					MaxScore = er.Exam.Voucher.Certificate.MaximumScore
 				})
 				.ToList()
@@ -154,6 +156,7 @@ public async Task<IActionResult> UserCertificates()
 					ExamDate = pc.ExamDate,
 					FirstName = pc.FirstName,
 					LastName = pc.LastName,
+					Passed = pc.Passed,
 					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
 				})
 				.Distinct()
