@@ -7,6 +7,7 @@ namespace PC_backend.Dto
         // public int ProductId { get; set; }
 
         public string? ProductName { get; set; }
+        public int? CertificateId { get; set; }
 
         public string? Description { get; set; }
 

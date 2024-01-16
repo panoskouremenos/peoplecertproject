@@ -123,7 +123,7 @@ namespace PC_backend.Controllers
                         QuestionText = q.QuestionText,
                         QuestionType = q.QuestionType,
                         PossibleAnswers = q.PossibleAnswers,
-                        Answer = q.Answer
+                        //Answer = q.Answer
                     }).ToList()
                 }).ToList();
 

@@ -47,6 +47,7 @@ namespace PC_backend.Controllers
           }
             var examResult =_context.ExamResults
                 .Include(e=>e.Exam)
+                .Include(eca => eca.ExamCandAnswers)
                 .FirstOrDefault(c=>c.ResultId == id);
 
             if (examResult == null)
@@ -197,8 +198,8 @@ public async Task<IActionResult> UserCertificates()
             ExamResult examResult = new ExamResult()
             {
                 ExamId = examResultdto.ExamId,
-                Score = examResultdto.Score,
-                ResultDate = examResultdto.ResultDate,
+                Score =(int)examResultdto.Score,
+                ResultDate = (DateTime)examResultdto.ResultDate,
                 Passed = examResultdto.Passed              
             };
 
@@ -234,6 +235,45 @@ public async Task<IActionResult> UserCertificates()
         private bool ExamResultExists(int id)
         {
             return (_context.ExamResults?.Any(e => e.ResultId == id)).GetValueOrDefault();
+        }
+
+        [HttpGet("{examId}/Results")]
+        public IActionResult GetExamResults(int examId)
+        {
+            var examResult = _context.ExamResults
+                .Where(er => er.ExamId == examId)
+                .FirstOrDefault();
+
+            if (examResult == null)
+            {
+                return NotFound("Exam result not found");
+            }
+
+            // Calculate pass/fail status based on our criteria
+            var passOrFail = (examResult.Score >= 3) ? "Pass" : "Fail";
+
+
+            examResult.Passed = (examResult.Score >= 3);
+            _context.SaveChanges();
+            /*if (passOrFail == "Pass")
+            {
+                examResult.Passed = true;
+            }
+            else
+            {
+                examResult.Passed = false;
+            }
+            _context.SaveChanges();*/
+
+            var resultDto = new
+            {
+                ExamId = examResult.ExamId,
+                Score = examResult.Score,
+                PassOrFail = passOrFail
+                
+            };
+
+            return Ok(resultDto);
         }
     }
 }
