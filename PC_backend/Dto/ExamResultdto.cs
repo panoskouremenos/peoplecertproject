@@ -11,7 +11,7 @@ namespace PC_backend.Dto
 
         public DateTime? ResultDate { get; set; }
 
-        public bool? Passed { get; set; }
+        public bool Passed { get; set; }
 
        // public virtual Examdto? Exam { get; set; }
 

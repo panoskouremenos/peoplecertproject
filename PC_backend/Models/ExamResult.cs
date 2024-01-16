@@ -13,7 +13,7 @@ public partial class ExamResult
 
     public DateTime ResultDate { get; set; }
 
-    public bool? Passed { get; set; }
+    public bool Passed { get; set; }
 
     public virtual Exam? Exam { get; set; }
 

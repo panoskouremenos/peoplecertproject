@@ -29,6 +29,7 @@ import ChangeCreds from "./components/User/ChangeCreds";
 import MyCertificates from "./components/User/MyCertificates";
 import Certificates from "./components/Admin/certificates";
 import MyExams from "./components/User/MyExams";
+import CreateCert from "./components/Admin/AdminCreateCertificate";
 //import Voucher from "./components/Admin/vouchers";
 
 const App = () => {
@@ -160,10 +161,14 @@ const App = () => {
                   <Route path="admin/certificates" element={<Certificates />} />
                   <Route path="admin/candidates" element={<Candidateslist />} />
                   <Route path="admin/candidates/:id" element={<Candidatedetails />} />
+                  <Route path="admin/createcert" element={<CreateCert />} />
                   {/*<Route path="admin/vouchers" element={<MyExams />} />*/}
                   <Route path="cp/changecreds" element={<ChangeCreds updateUsername={updateUsername} />} />
                   <Route path="user/mycertificates" element={<MyCertificates />} />
                   <Route path="user/exams" element={<MyExams />} />
+
+
+                  
                 </>
               ) : (
                 <>
