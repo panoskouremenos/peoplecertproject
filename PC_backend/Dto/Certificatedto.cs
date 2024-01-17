@@ -17,7 +17,8 @@ namespace PC_backend.Dto
 
         public virtual ICollection<CertificateTopicMarkdto> CertificateTopicMarks { get; set; } = new List<CertificateTopicMarkdto>();
 
-        //public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
+		//public virtual ICollection<Exam> Exams { get; set; } = new List<Exam>();
+		public virtual ICollection<EshopProductDto> product { get; set; } = new List<EshopProductDto>();
 
-    }
+	}
 }

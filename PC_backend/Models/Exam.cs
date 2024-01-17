@@ -13,7 +13,7 @@ public partial class Exam
 
     public int? CertificateId { get; set; }
 
-    public DateTime? DateAssigned { get; set; }
+    public DateTime DateAssigned { get; set; }
 
     public virtual Candidate? Candidate { get; set; }
 

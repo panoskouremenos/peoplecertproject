@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PC_backend.Dto;
 using PC_backend.Models;
 using PC_backend.Services;
@@ -16,10 +17,11 @@ namespace PC_backend.Controllers
         {
             _context = context;
         }
-
+		//QUESTIONS =GET= ACTIONS START
 		/// <summary>
 		/// Gets all the questions in the database.
 		/// </summary>
+		[Authorize(Roles = "1")]
 		[HttpGet]
         public IActionResult GetQuestions()
         {
@@ -33,6 +35,7 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Gets a question by the id assigned.
 		/// </summary>
+		[Authorize(Roles = "1")]
 		[HttpGet("{id}")]
         public IActionResult GetQuestion(int id)
         {
@@ -50,10 +53,14 @@ namespace PC_backend.Controllers
 
             return Ok(question);
         }
+		//QUESTIONS =GET= ACTIONS END
 
+		//QUESTIONS =PUT= ACTIONS START
 		/// <summary>
 		/// Edit a question of a certain ID
 		/// </summary>
+		/// 
+		[Authorize(Roles = "2")]
 		[HttpPut("{id}")]
         public IActionResult PutQuestion(int id, Questiondto questiondto)
         {
@@ -73,9 +80,14 @@ namespace PC_backend.Controllers
 
         }
 
+		//QUESTIONS =PUT= ACTIONS END
+
+		//QUESTIONS =POST= ACTIONS START
 		/// <summary>
 		/// Writes a question to the database (You have to assign the topic number).
 		/// </summary>
+		/// 
+		[Authorize(Roles = "2")]
 		[HttpPost]
         public IActionResult PostQuestion(Questiondto questiondto)
         {
@@ -99,10 +111,14 @@ namespace PC_backend.Controllers
 
             return Ok(question);
         }
+		//QUESTIONS =POST= ACTIONS END
 
+		//QUESTIONS =DELETE= ACTIONS START
 		/// <summary>
 		/// Deletes a certain question from the table by passing the id.
 		/// </summary>
+		/// 
+		[Authorize(Roles = "2")]
 		[HttpDelete("{id}")]
         public IActionResult DeleteQuestion(int id)
         {
@@ -128,5 +144,6 @@ namespace PC_backend.Controllers
         {
             return (_context.Questions?.Any(e => e.QuestionId == id)).GetValueOrDefault();
         }
-    }
+		//QUESTIONS =DELETE= ACTIONS END
+	}
 }

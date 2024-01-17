@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PC_backend</name>
+    </assembly>
+    <members>
+        <member name="M:PC_backend.Controllers.CandidatesController.GetMyCandidateInfo">
+            <summary>
+            Gets the infos of a certain candidate, (for Admin use)(DEPRECATED)
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CandidatesController.Get(System.Int32)">
+            <summary>
+            Gets the infos of a certain candidate, (for Admin use)(DEPRECATED)
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CandidatesController.GetAll">
+            <summary>
+            Gets the infos of all candidates in existence. (for Admin use)
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CandidatesController.Post(PC_backend.Dto.CandidateCreateDto)">
+            <summary>
+            Makes the registered user a Candidate. Joins CandidatePhotoID and CandidateAddress together, accepts a json for all three of them together. Also binds his user profile with his candidate profile.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CandidatesController.Delete(System.Int32)">
+            <summary>
+            Accepts the candidate's id, deletes the candidate and whatever info is joined with his in CandidateAddresses and CandidatePhotoIds.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CandidatesController.Put(PC_backend.Dto.CandidateUpdateDto)">
+            <summary>
+            Gets the user's id from jwt token, lets him edit his own candidate infos.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CandidatesController.Put(System.Int32,PC_backend.Dto.CandidateUpdateDto)">
+            <summary>
+            Updates the information of a candidate with a certain ID, made for admin use.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificatesController.GetCertificates">
+            <summary>
+            Gets all Certificates in the Database.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificatesController.GetCertificate(System.Int32)">
+            <summary>
+            Get a certificate with a certain ID.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificatesController.PutCertificate(System.Int32,PC_backend.Dto.Certificatedto)">
+            <summary>
+            Edits a certificate with a certain ID.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificatesController.PostCertificate(PC_backend.Dto.Certificatedto)">
+            <summary>
+            Creates a certificate.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificatesController.DeleteCertificate(System.Int32)">
+            <summary>
+            Deletes a certain certificate.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificateTopicMarksController.GetCertificateTopicMarks">
+            <summary>
+            Gets all the topics along with the questions it contains.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificateTopicMarksController.GetCertificateTopicMark(System.Int32)">
+            <summary>
+            Gets the TopicMark with a certain id.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificateTopicMarksController.PutCertificateTopicMark(System.Int32,PC_backend.Dto.CertificateTopicMarkdto)">
+            <summary>
+            Edits a Topic Mark with a certain ID.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificateTopicMarksController.PostCertificateTopicMark(PC_backend.Dto.CertificateTopicMarkdto)">
+            <summary>
+            Inserts into the database a TopicMark (Probably unusable).
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CertificateTopicMarksController.DeleteCertificateTopicMark(System.Int32)">
+            <summary>
+            Deletes a certain topicmark (I have to test if it also deletes the questions binded)
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.QuestionsController.GetQuestions">
+            <summary>
+            Gets all the questions in the database.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.QuestionsController.GetQuestion(System.Int32)">
+            <summary>
+            Gets a question by the id assigned.
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.QuestionsController.PutQuestion(System.Int32,PC_backend.Dto.Questiondto)">
+            <summary>
+            Edit a question of a certain ID
+            </summary>
+            
+        </member>
+        <member name="M:PC_backend.Controllers.QuestionsController.PostQuestion(PC_backend.Dto.Questiondto)">
+            <summary>
+            Writes a question to the database (You have to assign the topic number).
+            </summary>
+            
+        </member>
+        <member name="M:PC_backend.Controllers.QuestionsController.DeleteQuestion(System.Int32)">
+            <summary>
+            Deletes a certain question from the table by passing the id.
+            </summary>
+            
+        </member>
+        <member name="M:AuthController.Register(PC_backend.Dto.UserRegisterDto)">
+            <summary>
+            Action that makes a new user in the database. ..
+            </summary>
+            
+        </member>
+        <member name="M:AuthController.Login(PC_backend.Dto.UserLoginDto)">
+            <summary>
+            Gives a jwt token to the user.
+            </summary>
+        </member>
+        <member name="M:AuthController.GetCandidateId">
+            <summary>
+            Get the user's Candidateid (if he has one)
+            </summary>
+        </member>
+        <member name="M:AuthController.ChangePassword(PC_backend.Dto.ChangePasswordDto)">
+            <summary>
+            Gets the jwt's userID and lets him edit his password.
+            </summary>
+        </member>
+        <member name="M:AuthController.ChangeUsername(PC_backend.Dto.ChangeUsernameDto)">
+            <summary>
+            Gets the jwt token from the authorized user, checks his userID and then changes his name, also check if the name already exists in the db.
+            </summary>
+        </member>
+    </members>
+</doc>

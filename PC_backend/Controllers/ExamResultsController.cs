@@ -19,6 +19,8 @@ namespace PC_backend.Controllers
 			_context = context;
 		}
 
+		//ExamResults =GET= ACTIONS START
+		[Authorize(Roles = "1")]
 		[HttpGet]
 		public IActionResult GetExamResults()
 		{
@@ -35,8 +37,8 @@ namespace PC_backend.Controllers
 			 score = er.Score,
 			 resultDate = er.ResultDate,
 			 passed = er.Passed,
-			 //exam = er.Exam, // Include other properties if needed
-			 // examCandAnswers = er.ExamCandAnswers // Include other properties if needed
+			 //exam = er.Exam,
+			 // examCandAnswers = er.ExamCandAnswers
 		 })
 		 .ToList();
 
@@ -44,7 +46,7 @@ namespace PC_backend.Controllers
 			//  return Ok(_context.ExamResults);
 		}
 
-		// GET: api/ExamResults/5
+		[Authorize(Roles = "2")]
 		[HttpGet("{id}")]
 		public IActionResult GetExamResult(int id)
 		{
@@ -66,7 +68,7 @@ namespace PC_backend.Controllers
 			// return Ok(examResultDto);
 		}
 
-		[Authorize]
+		[Authorize(Roles = "1")]
 		[HttpGet("UserCertificates")]
 		public async Task<IActionResult> UserCertificates()
 		{
@@ -78,7 +80,6 @@ namespace PC_backend.Controllers
 
 			var userId = int.Parse(userIdClaim.Value);
 
-			// Query the database to find the candidate associated with this user ID
 			var candidate = await _context.Candidates
 				.FirstOrDefaultAsync(c => c.UserId == userId);
 
@@ -118,7 +119,36 @@ namespace PC_backend.Controllers
 			return Ok(passedCertificates);
 		}
 
-		[Authorize]
+		[Authorize(Roles = "1")]
+		[HttpGet("{examId}/Results")]
+		public IActionResult GetExamResults(int examId)
+		{
+			var examResult = _context.ExamResults
+				.Where(er => er.ExamId == examId)
+				.FirstOrDefault();
+
+			if (examResult == null)
+			{
+				return NotFound("Exam result not found");
+			}
+
+			var passOrFail = (examResult.Score >= 3) ? "Pass" : "Fail";
+
+
+			examResult.Passed = (examResult.Score >= 3);
+			_context.SaveChanges();
+			var resultDto = new
+			{
+				ExamId = examResult.ExamId,
+				Score = examResult.Score,
+				PassOrFail = passOrFail
+
+			};
+
+			return Ok(resultDto);
+		}
+
+		[Authorize(Roles = "1")]
 		[HttpGet("MyExamResults")]
 		public async Task<IActionResult> MyExamResults()
 		{
@@ -130,7 +160,6 @@ namespace PC_backend.Controllers
 
 			var userId = int.Parse(userIdClaim.Value);
 
-			// Query the database to find the candidate associated with this user ID
 			var candidate = await _context.Candidates
 				.FirstOrDefaultAsync(c => c.UserId == userId);
 
@@ -171,32 +200,10 @@ namespace PC_backend.Controllers
 				.ToList();
 			return Ok(passedCertificates);
 		}
+		//ExamResults =GET= ACTIONS START
 
-
-		// PUT: api/ExamResults/5
-		//[HttpPut("{id}")]
-		//      public IActionResult PutExamResult(int id, ExamResultdto examResultdto)
-		//      {
-		//          var examResult =_context.ExamResults.FirstOrDefault(c=>c.ResultId == id);
-
-		//          if (examResult == null)
-		//          {
-		//              return NotFound();
-		//          }
-
-		//          examResult.ExamId = examResultdto.ExamId;
-		//          examResult.Score = examResultdto.Score;
-		//          examResult.ResultDate = examResultdto.ResultDate;
-		//          examResult.Passed = examResultdto.Passed;
-
-		//          _context.SaveChanges();
-		//          return Ok(examResult);
-
-
-		//      }
-
-		// POST: api/ExamResults
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		//ExamResults =POST= ACTIONS START
+		[Authorize(Roles = "1")]
 		[HttpPost]
 		public IActionResult PostExamResult(ExamResultdto examResultdto)
 		{
@@ -213,15 +220,13 @@ namespace PC_backend.Controllers
 				Passed = examResultdto.Passed
 			};
 
-
-
 			_context.ExamResults.Add(examResult);
 			_context.SaveChanges();
 
 			return Ok(examResult);
 		}
 
-		// DELETE: api/ExamResults/5
+		[Authorize(Roles = "2")]
 		[HttpDelete("{id}")]
 		public IActionResult DeleteExamResult(int id)
 		{
@@ -247,42 +252,8 @@ namespace PC_backend.Controllers
 			return (_context.ExamResults?.Any(e => e.ResultId == id)).GetValueOrDefault();
 		}
 
-		[HttpGet("{examId}/Results")]
-		public IActionResult GetExamResults(int examId)
-		{
-			var examResult = _context.ExamResults
-				.Where(er => er.ExamId == examId)
-				.FirstOrDefault();
-
-			if (examResult == null)
-			{
-				return NotFound("Exam result not found");
-			}
-
-			var passOrFail = (examResult.Score >= 3) ? "Pass" : "Fail";
+		//ExamResults =POST= ACTIONS START
 
 
-			examResult.Passed = (examResult.Score >= 3);
-			_context.SaveChanges();
-			/*if (passOrFail == "Pass")
-            {
-                examResult.Passed = true;
-            }
-            else
-            {
-                examResult.Passed = false;
-            }
-            _context.SaveChanges();*/
-
-			var resultDto = new
-			{
-				ExamId = examResult.ExamId,
-				Score = examResult.Score,
-				PassOrFail = passOrFail
-
-			};
-
-			return Ok(resultDto);
-		}
 	}
 }

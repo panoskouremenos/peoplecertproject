@@ -17,7 +17,7 @@ namespace PC_backend.Controllers
 		{
 			_context = context;
 		}
-
+		//TOPIC =GET= ACTIONS START
 		[HttpGet]
 		public IActionResult GetEshopProducts()
 		{
@@ -46,7 +46,7 @@ namespace PC_backend.Controllers
 
 			return Ok(EshopProduct);
 		}
-		[Authorize]
+		[Authorize(Roles = "1")]
 		[HttpGet("MyPurchases")]
 		public async Task<IActionResult> GetMyPurchases()
 		{
@@ -67,12 +67,14 @@ namespace PC_backend.Controllers
 			var purchases = await _context.UserCertificatePurchases
 				.Where(p => p.CandidateId == candidate.CandidateId)
 				.Select(p => p.ProductId)
-				.Distinct() // Ensure unique product IDs
+				.Distinct()
 				.ToListAsync();
 
 			return Ok(purchases);
 		}
-
+		//TOPIC =GET= ACTIONS END
+		//TOPIC =PUT= ACTIONS START
+		[Authorize(Roles = "2")]
 		[HttpPut("{id}")]
 		public IActionResult PutEshopProduct(int id, EshopProductDto eshopProductDto)
 		{
@@ -92,8 +94,10 @@ namespace PC_backend.Controllers
 			_context.SaveChanges();
 			return Ok(eshopProduct);
 		}
+		//TOPIC =PUT= ACTIONS END
 
-		[Authorize]
+		//TOPIC =POST= ACTIONS START
+		[Authorize(Roles = "1")]
 		[HttpPost("PurchaseAndExam")]
 		public async Task<IActionResult> PostPurchaseAndExam([FromBody] PurchaseAndExamDto dto)
 		{
@@ -137,7 +141,7 @@ namespace PC_backend.Controllers
 			return Ok("Purchase and exam registration successful.");
 		}
 
-
+		[Authorize(Roles = "2")]
 		[HttpPost]
 		public IActionResult PostEshopProduct(EshopProductDto eshopProductDto)
 		{
@@ -162,7 +166,10 @@ namespace PC_backend.Controllers
 
 			return Ok(eshopProduct);
 		}
+		//TOPIC =DELETE= ACTIONS END
 
+		//TOPIC =DELETE= ACTIONS START
+		[Authorize(Roles = "2")]
 		[HttpDelete("{id}")]
 		public IActionResult DeleteEshopProduct(int id)
 		{
@@ -180,8 +187,8 @@ namespace PC_backend.Controllers
 			_context.SaveChanges();
 			return Ok(eshopProduct);
 
-
 		}
+		//TOPIC =DELETE= ACTIONS END
 
 	}
 }

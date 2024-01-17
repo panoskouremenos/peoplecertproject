@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PC_backend.Dto;
 using PC_backend.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PC_backend.Controllers
 {
@@ -15,6 +16,8 @@ namespace PC_backend.Controllers
 			_context = context;
 		}
 
+		//CAND.ANSWERS =POST= ACTIONS START
+		[Authorize(Roles = "1")]
 		[HttpPost("ProcessAnswers")]
 		public IActionResult ProcessCandidateAnswers(List<ExamCandidateAnswerDto> candidateAnswers)
 		{
@@ -55,6 +58,7 @@ namespace PC_backend.Controllers
 
 			return Ok(updatedExamResults);
 		}
+		//CAND.ANSWERS =POST= ACTIONS END
 
 	}
 }

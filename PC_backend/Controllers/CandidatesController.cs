@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 //All the controllers that control the CRUD of Candidates.
 //Auth tip: Role 1 = User
 //          Role 2 = Admin
-//          Role 3 = Quality Control //Probably not needed.
+//          Role 3 = Quality Control //Probably not needed. No time to implement.
 namespace PC_backend.Controllers
 {
 
@@ -24,7 +24,7 @@ namespace PC_backend.Controllers
 			_context = context;
 		}
 
-		//CANDIDATES GET ACTIONS START
+		//CANDIDATES =GET= ACTIONS START
 		/// <summary>
 		/// Gets the infos of a certain candidate, (for Admin use)(DEPRECATED)
 		/// </summary>
@@ -74,7 +74,7 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Gets the infos of all candidates in existence. (for Admin use)
 		/// </summary>
-		[Authorize(Roles = "1")]
+		[Authorize(Roles = "2")]
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<Candidate>>> GetAll()
 		{
@@ -90,11 +90,11 @@ namespace PC_backend.Controllers
 
 			return Ok(candidates);
 		}
-		//CANDIDATES GET ACTIONS END
+		//CANDIDATES =GET= ACTIONS END
 		/// <summary>
 		/// Makes the registered user a Candidate. Joins CandidatePhotoID and CandidateAddress together, accepts a json for all three of them together. Also binds his user profile with his candidate profile.
 		/// </summary>
-		//CANDIDATES POST ACTIONS START
+		//CANDIDATES =POST= ACTIONS START
 		[Authorize(Roles = "1")]
 		[HttpPost]
 		public async Task<IActionResult> Post([FromBody] CandidateCreateDto candidateCreateDto)
@@ -183,9 +183,9 @@ namespace PC_backend.Controllers
 
 			return NoContent();
 		}
-		//CANDIDATES POST ACTIONS END
+		//CANDIDATES =POST= ACTIONS END
 
-		//CANDIDATES PUT ACTIONS START
+		//CANDIDATES =PUT= ACTIONS START
 		/// <summary>
 		/// Gets the user's id from jwt token, lets him edit his own candidate infos.
 		/// </summary>

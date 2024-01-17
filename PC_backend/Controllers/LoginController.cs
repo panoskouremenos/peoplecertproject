@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +20,12 @@ public class AuthController : ControllerBase
 		var handler = new JwtSecurityTokenHandler();
 		var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
 
-		Console.WriteLine("JWT Token Claims:");
-		foreach (var claim in jsonToken.Claims)
-		{
-			Console.WriteLine($"{claim.Type}: {claim.Value}");
-		}
+		//Just for testing
+		//Console.WriteLine("JWT Token Claims:");
+		//foreach (var claim in jsonToken.Claims)
+		//{
+		//	Console.WriteLine($"{claim.Type}: {claim.Value}");
+		//}
 	}
 	private readonly ApplicationDbContext _context;
 	private readonly IPasswordHasher<Usertbl> _passwordHasher;
@@ -38,13 +40,18 @@ public class AuthController : ControllerBase
 	/// <summary>
 	/// Action that makes a new user in the database. ..
 	/// </summary>
-	/// <remarks>
-	/// by default the isAction and roleID is "1", both RoleID and userID are passed through JWT.
-	/// </remarks>
-	/// <param name="userRegisterDto">Enter username and password.</param>
+	/// 
+	//LOGIN =POST= ACTIONS START
 	[HttpPost("register")]
 	public async Task<IActionResult> Register(UserRegisterDto userRegisterDto)
 	{
+		if (_context.Usertbls.Any(u => u.UserName == userRegisterDto.UserName))
+		{
+
+			return BadRequest("Username is already taken. Please choose a different username.");
+		}
+
+
 		var user = new Usertbl
 		{
 			UserName = userRegisterDto.UserName,
@@ -58,20 +65,30 @@ public class AuthController : ControllerBase
 		await _context.SaveChangesAsync();
 		return Ok();
 	}
+
 	/// <summary>
-	/// Checks if the user is authenticated. (Mainly for testing).
+	/// Gives a jwt token to the user.
 	/// </summary>
-	/// <remarks>
-	/// This action verifies if the user is authenticated and authorized to access protected resources.
-	/// It returns a simple message indicating the user is authorized.
-	/// </remarks>
-	/// <returns>An Ok response with a message for authorized users.</returns>
-	[Authorize]
-	[HttpGet("AuthorizeAuthenticatedUsers")]
-	public IActionResult AuthorizeAuthenticatedUSers()
+	[HttpPost("login")]
+	public async Task<IActionResult> Login(UserLoginDto userLoginDto)
 	{
-		return Ok("Authorized Client!");
+		var user = await _context.Usertbls.FirstOrDefaultAsync(u => u.UserName == userLoginDto.UserName);
+
+		if (user != null)
+		{
+			var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, userLoginDto.Password);
+			if (result == PasswordVerificationResult.Success)
+			{
+				var token = GenerateJwtToken(user);
+				LogJwtToken(token);
+				return Ok(new { Token = token });
+			}
+		}
+		return Unauthorized("Invalid credentials");
 	}
+	//LOGIN =POST= ACTIONS END
+
+	//LOGIN =GET= ACTIONS START
 	/// <summary>
 	/// Get the user's Candidateid (if he has one)
 	/// </summary>
@@ -130,66 +147,36 @@ public class AuthController : ControllerBase
 	}
 
 
+	//DEPRECATED
+	//[Authorize]
+	//[HttpGet("GetUsername")]
+	//public async Task<ActionResult<string>> GetUsername()
+	//{
+	//	var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+	//	if (userIdClaim == null)
+	//	{
+	//		return Unauthorized("User ID is missing in the token.");
+	//	}
 
+	//	var userId = int.Parse(userIdClaim.Value);
 
+	//	var user = await _context.Usertbls
+	//		.FirstOrDefaultAsync(u => u.UserId == userId);
 
-	[Authorize]
-	[HttpGet("GetUsername")]
-	public async Task<ActionResult<string>> GetUsername()
-	{
-		var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
-		if (userIdClaim == null)
-		{
-			return Unauthorized("User ID is missing in the token.");
-		}
+	//	if (user == null)
+	//	{
+	//		return NotFound("User not found.");
+	//	}
 
-		var userId = int.Parse(userIdClaim.Value);
+	//	return Ok(user.UserName);
+	//}
 
-		var user = await _context.Usertbls
-			.FirstOrDefaultAsync(u => u.UserId == userId);
+	//LOGIN =GET= ACTIONS END
 
-		if (user == null)
-		{
-			return NotFound("User not found.");
-		}
-
-		return Ok(user.UserName);
-	}
-
-
-	/// <summary>
-	/// Gives a jwt token to the user.
-	/// </summary>
-	/// <remarks>
-	/// This action gives a jwt to the user by utilizing username and password
-	/// 
-	/// </remarks>
-	/// <returns>A jwt token for authorizarion</returns>
-	[HttpPost("login")]
-	public async Task<IActionResult> Login(UserLoginDto userLoginDto)
-	{
-		var user = await _context.Usertbls.FirstOrDefaultAsync(u => u.UserName == userLoginDto.UserName);
-
-		if (user != null)
-		{
-			var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, userLoginDto.Password);
-			if (result == PasswordVerificationResult.Success)
-			{
-				var token = GenerateJwtToken(user);
-				LogJwtToken(token);
-				return Ok(new { Token = token });
-			}
-		}
-		return Unauthorized("Invalid credentials");
-	}
+	//LOGIN =PUT= ACTIONS START
 	/// <summary>
 	/// Gets the jwt's userID and lets him edit his password.
 	/// </summary>
-	/// <remarks>
-	/// 
-	/// 
-	/// </remarks>
-	/// <returns></returns>
 	[Authorize]
 	[HttpPut("change-password")]
 	public async Task<IActionResult> ChangePassword(ChangePasswordDto changePasswordDto)
@@ -215,11 +202,6 @@ public class AuthController : ControllerBase
 	/// <summary>
 	/// Gets the jwt token from the authorized user, checks his userID and then changes his name, also check if the name already exists in the db.
 	/// </summary>
-	/// <remarks>
-	/// Checks if the username exists and if not it changes it.
-	/// 
-	/// </remarks>
-	/// <returns></returns>
 	[Authorize]
 	[HttpPut("change-username")]
 	public async Task<IActionResult> ChangeUsername(ChangeUsernameDto changeUsernameDto)
@@ -297,5 +279,6 @@ public class AuthController : ControllerBase
 
 		return new JwtSecurityTokenHandler().WriteToken(token);
 	}
+	//LOGIN =PUT= ACTIONS START
 
 }

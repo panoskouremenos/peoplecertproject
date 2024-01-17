@@ -19,6 +19,8 @@ namespace PC_backend.Controllers
 			_context = context;
 		}
 
+		//EXAMVOUCHERS =GET= ACTIONS START
+		[Authorize(Roles = "2")]
 		[HttpGet]
 		public IActionResult GetExamVouchers()
 		{
@@ -44,7 +46,45 @@ namespace PC_backend.Controllers
 
 			return Ok(examVouchers);
 		}
+		[Authorize(Roles = "1")]
+		[HttpGet("UpcomingExam")]
+		public IActionResult GetUpcomingExam()
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized("User ID is missing.");
+			}
 
+			var userId = int.Parse(userIdClaim.Value);
+			var now = DateTime.UtcNow;
+
+			var upcomingExam = _context.Candidates
+				.Where(c => c.UserId == userId)
+				.Join(_context.Exams,
+					  candidate => candidate.CandidateId,
+					  exam => exam.CandidateId,
+					  (candidate, exam) => new { candidate, exam })
+				.Join(_context.Certificates,
+					  combined => combined.exam.CertificateId,
+					  certificate => certificate.CertificateId,
+					  (combined, certificate) => new { combined.exam, certificate.Title })
+				.Select(e => new
+				{
+					e.exam.ExamId,
+					CertificateTitle = e.Title,
+					TimeRemaining = e.exam.DateAssigned.Subtract(now).TotalMinutes
+				})
+				.FirstOrDefault(e => e.TimeRemaining <= 30 && e.TimeRemaining > 0);
+
+			if (upcomingExam == null)
+			{
+				return NotFound("No upcoming exam within 30 minutes.");
+			}
+
+			return Ok(upcomingExam);
+		}
+		[Authorize(Roles = "1")]
 		[HttpGet("{id}")]
 		public IActionResult GetExamVoucher(int id)
 		{
@@ -62,7 +102,10 @@ namespace PC_backend.Controllers
 
 			return Ok(examVoucher);
 		}
+		//EXAMVOUCHERS =GET= ACTIONS END
 
+		//EXAMVOUCHERS =POST= ACTIONS START
+		[Authorize(Roles = "2")]
 		[HttpPost]
 		public IActionResult PostExamVoucher(ExamVoucherDto examVoucherDto)
 		{
@@ -90,8 +133,10 @@ namespace PC_backend.Controllers
 
 			return Ok(new { message = "Exam voucher created successfully.", voucherCode });
 		}
+		//EXAMVOUCHERS =POST= ACTIONS END
 
-		[Authorize]
+		//EXAMVOUCHERS =PUT= ACTIONS START
+		[Authorize(Roles = "1")]
 		[HttpPut("RedeemVoucher/{voucherCode}")]
 		public IActionResult RedeemVoucher(Guid voucherCode, [FromBody] RedeemVoucherDto redeemVoucherDto)
 		{
@@ -122,8 +167,6 @@ namespace PC_backend.Controllers
 				return BadRequest("Invalid date format.");
 			}
 
-			Console.WriteLine($"Parsed Date: {parsedDate}");
-
 
 			if (voucher == null || voucher.IsUsed)
 			{
@@ -148,5 +191,6 @@ namespace PC_backend.Controllers
 
 			return Ok("Voucher redeemed and exam scheduled.");
 		}
+		//EXAMVOUCHERS =PUT= ACTIONS END
 	}
 }

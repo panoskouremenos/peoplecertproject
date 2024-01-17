@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PC_backend.Dto;
 using PC_backend.Models;
 using PC_backend.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PC_backend.Controllers
 {
@@ -20,6 +21,8 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Gets all the topics along with the questions it contains.
 		/// </summary>
+		//TOPIC =GET= ACTIONS START
+		[Authorize(Roles = "1")]
 		[HttpGet]
 		public IActionResult GetCertificateTopicMarks()
 		{
@@ -35,6 +38,7 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Gets the TopicMark with a certain id.
 		/// </summary>
+		[Authorize(Roles = "1")]
 		[HttpGet("{id}")]
 		public IActionResult GetCertificateTopicMark(int id)
 		{
@@ -51,10 +55,13 @@ namespace PC_backend.Controllers
 
 			return Ok(certificateTopicMark);
 		}
+		//TOPIC =GET= ACTIONS END
 
+		//TOPIC =PUT= ACTIONS START
 		/// <summary>
 		/// Edits a Topic Mark with a certain ID.
 		/// </summary>
+		[Authorize(Roles = "2")]
 		[HttpPut("{id}")]
 		public IActionResult PutCertificateTopicMark(int id, CertificateTopicMarkdto certificateTopicMarkdto)
 		{
@@ -83,10 +90,13 @@ namespace PC_backend.Controllers
 			return Ok(certificateTopicMark);
 
 		}
+		//TOPIC =PUT= ACTIONS END
 
+		//TOPIC =POST= ACTIONS START
 		/// <summary>
 		/// Inserts into the database a TopicMark (Probably unusable).
 		/// </summary>
+		[Authorize(Roles = "2")]
 		[HttpPost]
 		public IActionResult PostCertificateTopicMark(CertificateTopicMarkdto certificateTopicMarkdto)
 		{
@@ -117,10 +127,11 @@ namespace PC_backend.Controllers
 
 			return Ok(certificateTopicMark);
 		}
-
+		//TOPIC =DELETE= ACTIONS START
 		/// <summary>
 		/// Deletes a certain topicmark (I have to test if it also deletes the questions binded)
 		/// </summary>
+		[Authorize(Roles = "2")]
 		[HttpDelete("{id}")]
 		public IActionResult DeleteCertificateTopicMark(int id)
 		{
@@ -148,5 +159,6 @@ namespace PC_backend.Controllers
 		{
 			return (_context.CertificateTopicMarks?.Any(e => e.CertificateTopicMarksId == id)).GetValueOrDefault();
 		}
+		//TOPIC =DELETE= ACTIONS END
 	}
 }
