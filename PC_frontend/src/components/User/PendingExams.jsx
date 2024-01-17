@@ -9,8 +9,6 @@ const RedeemVoucher = () => {
     const [examDate, setExamDate] = useState(new Date());
     const { token } = useContext(AuthContext);
 
-
-
     const handleRedeem = async () => {
         try {
             const formattedDate = examDate.toISOString();
@@ -22,6 +20,7 @@ const RedeemVoucher = () => {
                 },
                 body: JSON.stringify({ dateAssigned: formattedDate })
             });
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Response Status:', response.status, 'Response Text:', errorText);
