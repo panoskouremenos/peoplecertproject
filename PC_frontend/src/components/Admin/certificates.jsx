@@ -154,7 +154,8 @@ const CertificatesList = () => {
       <td>{certificate.maximumScore}</td>
       <td>
         <button 
-          className="btn btn-primary"
+          className="btn btn-primary p-2"
+          style={{ width: 'max-content'}}
           onClick={() => handleEditClick(certificate)}
         >
           Quick Edit
@@ -162,7 +163,7 @@ const CertificatesList = () => {
         
       </td>
       <td>        <button 
-          className="btn btn-danger"
+          className="btn btn-danger p-2"
           onClick={() => handleDeleteClick(certificate)}
         >
           Delete

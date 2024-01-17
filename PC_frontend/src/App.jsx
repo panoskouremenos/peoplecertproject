@@ -34,6 +34,7 @@ import ChangeCreds from "./components/User/ChangeCreds";
 import MyCertificates from "./components/User/MyCertificates";
 import Certificates from "./components/Admin/certificates";
 import MyExams from "./components/User/MyExams";
+import AdminCreateCertificate from "./components/Admin/AdminCreateCertificate/AdminCreateCertificate";
 //import CreateCert from "./components/Admin/candidatedetails";
 import Voucher from "./components/Admin/VoucherList";
 import PendingExams from "./components/User/PendingExams";
@@ -194,6 +195,7 @@ const App = () => {
                   <Route path="admin/candidates" element={<Candidateslist />} />
                   <Route path="admin/candidates/:id" element={<Candidatedetails />} />
                   <Route path="admin/vouchers" element={<Voucher />} />
+                  <Route path="admin/createcert" element={<AdminCreateCertificate />} />
                   </>
                   ) : (
                   <>
@@ -202,9 +204,9 @@ const App = () => {
                   <Route path="admin/candidates" element={<HomePage />} />
                   <Route path="admin/candidates/:id" element={<HomePage />} />
                   <Route path="admin/vouchers" element={<HomePage />} />
+                   <Route path="admin/createcert" element={<HomePage />} />
                   </>
                   )}
-                  {/* <Route path="admin/createcert" element={<CreateCert />} /> */}
                   {/*<Route path="admin/vouchers" element={<MyExams />} />*/}
                   <Route path="cp/changecreds" element={<ChangeCreds updateUsername={updateUsername} />} />
                   <Route path="user/mycertificates" element={<MyCertificates />} />

@@ -35,9 +35,8 @@ const CandidateDetails = () => {
     landlineNumber: '',
     mobileNumber: '',
   };
-  useEffect(() => {
 
-    
+  useEffect(() => {    
     const fetchCandidate = async () => {
       try {
         setLoading(true);
@@ -75,6 +74,8 @@ const CandidateDetails = () => {
 
     if (token) {
       fetchCandidate();
+    }else{
+      navigate('/login');
     }
 
   }, [id, token]);
