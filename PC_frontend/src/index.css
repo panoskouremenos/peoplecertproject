@@ -278,14 +278,44 @@ html,body{
 /* styles.css or your preferred style file */
 
 #exampage .list-group-item {
-  margin: 10;
+  margin-top:5px;
   padding: 20px;
   font-size: 18px;
+  border: 1px solid white;
 }
 
 #exampage .list-group-item:hover,
 #exampage .list-group-item.active {
+  background-color: green !important;
+  color: whitesmoke !important;
+  border: 1px solid limegreen !important;
+}
+
+#examNotification {
+  padding: .5em;
+  position: absolute;
+  z-index: 100000000;
+  background: linear-gradient(90deg, crimson , #ce2929);
+  color: #fdfdfd;
+  margin: auto;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  box-shadow: inset 0px 0px 5px rgba(0,0,0,.2);
+  font-family: Cursive !important;
+}
+
+.isnotchecked{
+  background:white;
+  color:black !important;
+}
+
+.ischecked{
   background-color: #c73131;
   color: #fff9f9;
   border: 1px solid crimson;
+}
+
+#exampage .border.p-3 {
+  min-width: 100%;
 }

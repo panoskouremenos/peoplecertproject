@@ -11,14 +11,12 @@ const initialCertificate = {
   maximumScore: 0,
   certificateTopicMarks: [
     {
-      // topicDesc: "",
       topicMarks: "",
       questions: [
         {
           certificateTopicMarksId: "",
           questionText: "",
           questionType: "",
-          // possibleAnswers: "",
           0: "",
           1: "",
           2: "",
@@ -30,13 +28,11 @@ const initialCertificate = {
   ],
 };
 
-const formatedCertificate = ( certificate ) => {
-  // Ensure the input object is not null or undefined
+const formatedCertificate = (certificate) => {
   if (!certificate) {
     return null;
   }
 
-  // Convert the main properties
   const convertedObject = {
     "title": certificate.title || "",
     "assessmentTestCode": certificate.assessmentTestCode || "",
@@ -45,24 +41,28 @@ const formatedCertificate = ( certificate ) => {
     "certificateTopicMarks": []
   };
 
-  // Convert certificateTopicMarks
   if (Array.isArray(certificate.certificateTopicMarks)) {
-    convertedObject.certificateTopicMarks = certificate.certificateTopicMarks.map(topic => {
+    convertedObject.certificateTopicMarks = certificate.certificateTopicMarks.map((topic) => {
       const convertedTopic = {
         "topicDesc": topic.topicMarks || "",
         "questions": []
       };
 
-      // Convert questions
       if (Array.isArray(topic.questions)) {
-        convertedTopic.questions = topic.questions.map(question => {
+        convertedTopic.questions = topic.questions.map((question) => {
+          const possibleAnswers = Object.keys(question)
+            .filter((key) => !isNaN(key)) 
+            .map((key) => question[key])
+            .join(", ");
+
           const convertedQuestion = {
             "certificateTopicMarksId": parseInt(question.certificateTopicMarksId) || 0,
             "questionText": question.questionText || "",
             "questionType": parseInt(question.questionType) || 0,
-            "possibleAnswers": Object.values(question).slice(0, -2).join(", ") || "",
-            "answer": Object.values(question)[parseInt(question.checkedBox)] || ""
+            "possibleAnswers": possibleAnswers || "",
+            "answer": question[question.checkedBox] || ""
           };
+
           return convertedQuestion;
         });
       }
@@ -72,7 +72,8 @@ const formatedCertificate = ( certificate ) => {
   }
 
   return convertedObject;
-}
+};
+
 
 const AdminCreateCertificate = () => {
   const [certificateInfo, setCertificateInfo] = useState(initialCertificate);
@@ -155,21 +156,6 @@ const AdminCreateCertificate = () => {
     }]
 }
 */
-    // transform the data stracture based backend's needs
-    // iterate the certificateTopicMarks and then the question of each topic
-    // and transform each question based that
-    // {
-    //   "certificateTopicMarksId": 0,
-    //   "questionText": "string",
-    //   "questionType": 0,
-    //   "possibleAnswers": "string",
-    //   "answer": "string"
-    // }
-    // you can earch in the question for the attribut that has key the value of checkedBox
-    // and then asign the value of that attribut to the answer
-    //
-    //
-    // Make the request to the backend
     handleCertificateCreation();
   };
 
@@ -186,7 +172,6 @@ const AdminCreateCertificate = () => {
           certificateInfo={certificateInfo}
           setCertificateInfo={setCertificateInfo}
         />
-        {/* <CertificateQuestion /> */}
         <Button onClick={submitHandler}>Submit</Button>
       </Form>
     </>

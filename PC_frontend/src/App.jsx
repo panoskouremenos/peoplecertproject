@@ -48,7 +48,31 @@ const App = () => {
   const [isAdmin, setIsAdmin] = useState(null);
   const [isCandidate, setIsCandidate] = useState(null);
   const [examSoon , setIsExamSoon] = useState(null);
+  //{ examID : 1 , examTitle : "C# Fundamentals" , timer : new Date()}
   const [alerts , setAlerts] = useState([]);
+
+  const [ timer , setTimer ] = useState("30:00");
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const [minutes, seconds] = timer.split(':').map(Number);
+
+      const totalSeconds = minutes * 60 + seconds;
+
+      if (totalSeconds > 0) {
+        const newMinutes = Math.floor((totalSeconds - 1) / 60);
+        const newSeconds = (totalSeconds - 1) % 60;
+
+        const newTimer = `${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`;
+        setTimer(newTimer);
+      } else {
+        clearInterval(intervalId);
+        console.log("Timer reached 0!");
+      }
+    }, 1000); 
+
+    return () => clearInterval(intervalId);
+  }, [timer]);
 
   /*
   /auth/user/ExamSoon
@@ -60,10 +84,7 @@ const App = () => {
   const updateUsername = (newUsername) => {
     setUser(prevUser => ({ ...prevUser, username: newUsername }));
   };
-  /*
-  dimos => {"roleId":1,"cash":0,"candidateId":"1"}
-  admin => {"roleId":2,"cash":0,"candidateId":"2"}
-  */
+
   useEffect(() => {
     const local_token = localStorage.getItem("token");
     if (local_token && token === null) {
@@ -191,6 +212,8 @@ const App = () => {
               </Alert>
             ))}
           </div>
+          {examSoon !== null && ( <ExamNotification time={timer} /> ) }
+          
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/register" element={<RegisterPage />} />
