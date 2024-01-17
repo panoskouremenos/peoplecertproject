@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PC_backend.Dto;
 using PC_backend.Models;
 using PC_backend.Services;
@@ -43,6 +45,32 @@ namespace PC_backend.Controllers
 			}
 
 			return Ok(EshopProduct);
+		}
+		[Authorize]
+		[HttpGet("MyPurchases")]
+		public async Task<IActionResult> GetMyPurchases()
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized("User ID is missing in the token.");
+			}
+
+			var userId = int.Parse(userIdClaim.Value);
+			var candidate = await _context.Candidates.FirstOrDefaultAsync(c => c.UserId == userId);
+
+			if (candidate == null)
+			{
+				return NotFound("Candidate not found for the user.");
+			}
+
+			var purchases = await _context.UserCertificatePurchases
+				.Where(p => p.CandidateId == candidate.CandidateId)
+				.Select(p => p.ProductId)
+				.Distinct() // Ensure unique product IDs
+				.ToListAsync();
+
+			return Ok(purchases);
 		}
 
 		[HttpPut("{id}")]

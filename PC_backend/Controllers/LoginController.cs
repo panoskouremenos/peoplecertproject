@@ -251,6 +251,28 @@ public class AuthController : ControllerBase
 		return Ok("Username changed successfully.");
 	}
 
+	[Authorize]
+	[HttpPut("ChangeRole/{userId}/{roleId}")]
+	public async Task<IActionResult> ChangeUserRole(int userId, int roleId)
+	{
+		var user = await _context.Usertbls.FindAsync(userId);
+		if (user == null)
+		{
+			return NotFound();
+		}
+
+		var roleExists = await _context.UserRoles.AnyAsync(r => r.RoleId == roleId);
+		if (!roleExists)
+		{
+			return BadRequest("Role does not exist.");
+		}
+
+		user.RoleId = roleId;
+		await _context.SaveChangesAsync();
+
+		return NoContent();
+	}
+
 	private string GenerateJwtToken(Usertbl user)
 	{
 		var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]);
