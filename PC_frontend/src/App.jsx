@@ -18,12 +18,14 @@ import HomePage from "./components/HomePage";
 import EShopPage from "./components/EShopPage";
 import Logo from "./assets/logo.svg";
 import RegisterPage from "./components/RegisterPage";
+import ExamPage from "./components/ExamPage";
 
 //CONTEXTS
 import AuthContext from "./AuthContext";
 import CandidateContext from "./CandidateContext";
 import RoleContext from "./RoleContext";
 import AlertContext from "./AlertContext";
+import ExamContext from './ExamContext';
 
 import UserNavUi from "./components/UserNavUi";
 import UserControlPanel from "./components/User/UserControlPanel";
@@ -44,6 +46,7 @@ const App = () => {
   const [token, setToken] = useState(null);
   const [isAdmin, setIsAdmin] = useState(null);
   const [isCandidate, setIsCandidate] = useState(null);
+  const [examSoon , setIsExamSoon] = useState(null);
   const [alerts , setAlerts] = useState([]);
 
   const updateUsername = (newUsername) => {
@@ -96,7 +99,7 @@ const App = () => {
     } catch (error) {
       console.error("Error fetching user data:", error);
     }finally{
-      setAlerts(newAlerts);
+      setAlerts(newAlerts); 
     }
   };
 
@@ -184,6 +187,7 @@ const App = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/eshop" element={<EShopPage />} />
+              <Route path="/exam" element={<ExamPage />} />
               {token !== null ? (
                 <>
                   <Route path="/login" element={<HomePage />} />

@@ -210,3 +210,82 @@ html,body{
   border-radius:5px;
   border:1px solid rgb(203, 244, 252);
 }
+
+/* exam page */
+
+#exampage.container {
+  max-width: 1200px; /* Adjust as needed */
+}
+
+#exampage h5 {
+  font-size: 1.25rem;
+}
+
+#exampage .options {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#exampage .options input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+#exampage .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #fefefe;
+  border-radius: 50%;
+  border: 1px solid #3b3b3b;
+}
+
+#exampage .options:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+#exampage .options input:checked ~ .checkmark {
+  background-color: #336730;
+}
+
+#exampage .checkmark:after {
+  content: '';
+  position: absolute;
+  display: none;
+}
+
+#exampage .options input:checked ~ .checkmark:after {
+  display: block;
+}
+
+#exampage .options .checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+/* styles.css or your preferred style file */
+
+#exampage .list-group-item {
+  margin: 10;
+  padding: 20px;
+  font-size: 18px;
+}
+
+#exampage .list-group-item:hover,
+#exampage .list-group-item.active {
+  background-color: #c73131;
+  color: #fff9f9;
+  border: 1px solid crimson;
+}

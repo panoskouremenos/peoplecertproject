@@ -13,61 +13,51 @@ const VoucherList = () => {
     const { token } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
 
-    // Fetch vouchers
-        const fetchVouchers = async () => {
-            try {
-                const response = await fetch('https://localhost:5888/api/ExamVouchers', {
-                    method: 'GET',
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-                const data = await response.json();
-                setVouchers(data)
-            } catch (error) {
-                console.error('Error fetching candidate:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    useEffect(() => {
 
         if (token) {
-            fetchVouchers();
+            fetchData();
         }
+    }, [token]);
 
+    const fetchData = async () => {
+        setLoading(true);
 
-        const fetchCertificates = async () => {
-            try {
-                const response = await fetch('https://localhost:5888/api/Certificates', {
-                    method: 'GET',
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
+        try {
+            // Fetch vouchers
+            const vouchersResponse = await fetch('https://localhost:5888/api/ExamVouchers', {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            const vouchersData = await vouchersResponse.json();
+            setVouchers(vouchersData);
 
-                if (!response.ok) {
-                    console.log(response.status)
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setCertificates(data)
-            } catch (error) {
-                console.error('Error fetching candidate:', error);
-            } finally {
-                setLoading(false);
+            // Fetch certificates
+            const certificatesResponse = await fetch('https://localhost:5888/api/Certificates', {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!certificatesResponse.ok) {
+                console.log(certificatesResponse.status);
+                throw new Error('Network response was not ok');
             }
-        };
 
-        if (token) {
-            fetchCertificates();
+            const certificatesData = await certificatesResponse.json();
+            setCertificates(certificatesData);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
         }
+    };
 
-
-
-
-    // Create new voucher
     const handleCreateVoucher = async () => {
         try {
             const response = await fetch('https://localhost:5888/api/ExamVouchers', {
@@ -80,20 +70,12 @@ const VoucherList = () => {
             });
             const data = await response.json();
             setNewVoucherCode(data.voucherCode);
-            fetchVouchers();
+            fetchData(); 
             setShowModal(false);
         } catch (error) {
-            console.error('Error fetching vouchers:', error);
+            console.error('Error creating voucher:', error);
         }
     };
-
-
-    useEffect(() => {
-        if (token) {
-            fetchVouchers();
-            fetchCertificates();
-        }
-    }, [token]);
 
     if (loading) {
         return <p>Loading...</p>;

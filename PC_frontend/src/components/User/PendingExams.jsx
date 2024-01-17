@@ -11,7 +11,7 @@ const RedeemVoucher = () => {
 
     const handleRedeem = async () => {
         try {
-            const formattedDate = examDate.toISOString();
+            const formattedDate = format(examDate, 'yyyyMMddHHmm');
             const response = await fetch(`https://localhost:5888/api/ExamVouchers/RedeemVoucher/${voucherCode}`, {
                 method: 'PUT',
                 headers: {
