@@ -2,6 +2,8 @@ import React, { useState , useContext } from 'react';
 import { Form, Button, Alert, Container, Row, Col, FormCheck } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../AuthContext'; 
+import RoleContext from '../RoleContext'; 
+import CandidateContext from '../CandidateContext'; 
 
 const Login = () => {
   const [UserName, setUsername] = useState('');
@@ -13,6 +15,9 @@ const Login = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   const { setToken } = useContext(AuthContext);
+  const { isCandidate , setIsCandidate } = useContext(CandidateContext);
+  const { isAdmin , setIsAdmin } = useContext(RoleContext);
+  
   const navigate = useNavigate();
 
   const handleKeyPress = (e) => {

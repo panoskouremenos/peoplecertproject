@@ -18,8 +18,13 @@ import HomePage from "./components/HomePage";
 import EShopPage from "./components/EShopPage";
 import Logo from "./assets/logo.svg";
 import RegisterPage from "./components/RegisterPage";
+
+//CONTEXTS
 import AuthContext from "./AuthContext";
+import CandidateContext from "./CandidateContext";
+import RoleContext from "./RoleContext";
 import AlertContext from "./AlertContext";
+
 import UserNavUi from "./components/UserNavUi";
 import UserControlPanel from "./components/User/UserControlPanel";
 import UserAdminPanel from "./components/User/UserAdminPanel";
@@ -36,12 +41,17 @@ import PendingExams from "./components/User/PendingExams";
 const App = () => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(null);
+  const [isCandidate, setIsCandidate] = useState(null);
   const [alerts , setAlerts] = useState([]);
 
   const updateUsername = (newUsername) => {
     setUser(prevUser => ({ ...prevUser, username: newUsername }));
   };
-  
+  /*
+  dimos => {"roleId":1,"cash":0,"candidateId":"1"}
+  admin => {"roleId":2,"cash":0,"candidateId":"2"}
+  */
   useEffect(() => {
     const local_token = localStorage.getItem("token");
     if (local_token && token === null) {
@@ -52,15 +62,20 @@ const App = () => {
     }
   }, [token]);
 
+
   const handleLogout = () => {
     setUser(null);
+    setIsCandidate(null);
+    setIsAdmin(false);
     setToken(null);
     localStorage.removeItem("token");
   };
 
+
   const fetchUserData = async (token) => {
+    const newAlerts = [];
     try {
-      const response = await fetch('https://localhost:5888/api/Auth/GetUsername', {
+      const response = await fetch('https://localhost:5888/api/Auth/GetStatus', {
         method: 'GET',
         headers: {
           'Authorization': `bearer ${token}`,
@@ -69,13 +84,18 @@ const App = () => {
       });
 
       if (response.ok) {
-        const userData = await response.text();
-        setUser({username:userData});
+        const userData = await response.json();
+        console.log(userData);
+        setUser({username:userData.userName});
+        setIsCandidate(userData.candidateId !== null ? userData.isCandidate : null);
+        setIsAdmin(userData.roleId === 2 ? true : false);
       } else {
         handleLogout();
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
+    }finally{
+      setAlerts(newAlerts);
     }
   };
 
@@ -83,6 +103,8 @@ const App = () => {
     <Router>
       <AlertContext.Provider value={{ alerts , setAlerts }}>
       <AuthContext.Provider value={{ user, setUser, token, setToken }}>
+      <RoleContext.Provider value={{ isAdmin , setIsAdmin }}>
+      <CandidateContext.Provider value={{ isCandidate }}>
         <div>
           <nav className="navbar navbar-expand-md bg-white">
             <NavLink to="/" className="navbar-brand ">
@@ -165,11 +187,23 @@ const App = () => {
                 <>
                   <Route path="/login" element={<HomePage />} />
                   <Route path="/user/cp" element={<UserControlPanel />} />
+                  {isAdmin !== false ? (
+                    <>
                   <Route path="/user/admin" element={<UserAdminPanel />} />
                   <Route path="admin/certificates" element={<Certificates />} />
                   <Route path="admin/candidates" element={<Candidateslist />} />
                   <Route path="admin/candidates/:id" element={<Candidatedetails />} />
                   <Route path="admin/vouchers" element={<Voucher />} />
+                  </>
+                  ) : (
+                  <>
+                  <Route path="/user/admin" element={<HomePage />} />
+                  <Route path="admin/certificates" element={<HomePage />} />
+                  <Route path="admin/candidates" element={<HomePage />} />
+                  <Route path="admin/candidates/:id" element={<HomePage />} />
+                  <Route path="admin/vouchers" element={<HomePage />} />
+                  </>
+                  )}
                   {/* <Route path="admin/createcert" element={<CreateCert />} /> */}
                   {/*<Route path="admin/vouchers" element={<MyExams />} />*/}
                   <Route path="cp/changecreds" element={<ChangeCreds updateUsername={updateUsername} />} />
@@ -189,8 +223,10 @@ const App = () => {
             </Routes>
           </div>
         </div>
+        </CandidateContext.Provider>
+        </RoleContext.Provider>
       </AuthContext.Provider>
-</AlertContext.Provider>
+    </AlertContext.Provider>
     </Router>
   );
 };

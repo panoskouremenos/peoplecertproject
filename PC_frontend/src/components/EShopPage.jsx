@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import AuthContext from "../AuthContext";
+import CandidateContext from "../CandidateContext";
 import AlertContext from "../AlertContext";
 import EShopList from "./EShopList";
 import CloseButton from "./CloseButton";
@@ -10,6 +11,7 @@ const EShopPage = () => {
   const [purchaseBox, setPurchaseBox] = useState(false);
   const { token } = useContext(AuthContext);
   const { alerts , setAlerts } = useContext(AlertContext);
+  const { isCandidate , setIsCandidate } = useContext(CandidateContext);
 
   const fetchProducts = async () => {
     try {
@@ -220,6 +222,13 @@ const EShopPage = () => {
   return (
     <>
       <div id="eshop">
+        {isCandidate !== null ? "" : (
+          <>
+          <h5 className="text-center text-danger">You need to be a candidate to shop,&nbsp;
+          <a href="http://localhost:5173/user/cp">become one</a>
+          </h5>
+          </>
+        )}
         <EShopList
           onadd={handleBuyCertificate}
           onremove={handleRemoveCertificate}

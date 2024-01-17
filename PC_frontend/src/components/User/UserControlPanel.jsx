@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AuthContext from '../../AuthContext';
 import locationData from '../../json/countries+states+cities.json';
+import CandidateContext from '../../CandidateContext';
 
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -13,6 +14,7 @@ const CandidateDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
+  const { isCandidate } = useContext(CandidateContext);
   const [candidate, setCandidate] = useState(null);
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -51,10 +53,8 @@ const CandidateDetails = () => {
           
           throw new Error('Network response was not ok');
         }
-    
         const data = await response.json();
-    
-        if (data.message && data.message === "User is not a candidate") {
+        if (data.message && data.message === "User is not a candidate!") {
           setMethod("POST")
           setEditing(true);
           setCandidate(newCandidateTemplate);
@@ -155,7 +155,7 @@ const CandidateDetails = () => {
     }));
   };
   const handleBack = () => {
-    window.location.reload();
+    setEditing(false);
   };
 
   const handleInputChange = (e) => {
@@ -304,7 +304,7 @@ const CandidateDetails = () => {
               type="date"
               className="form-control mb-2"
               name="birthDate"
-              value={candidate.birthDate.split('T')[0]}
+              value={candidate.birthDate !== null ? candidate.birthDate.split('T')[0] : ""}
               onChange={handleInputChange}
             />
             <label>Photo ID Type:</label>
@@ -430,6 +430,8 @@ const CandidateDetails = () => {
             <p>Gender: <b>{genderOptions[candidate.gender]}</b></p>
             <p>Native Language: <b>{candidate.nativeLanguage}</b></p>
             <p>Birth Date: <b>{formatDate(candidate.birthDate)}</b></p>
+            <p>Photo ID Type: <b>{candidate.candidatePhotoIds?.[0]?.photoIdtype ? legaldocOptions[candidate.candidatePhotoIds[0]?.photoIdtype] : 'N/A'}</b></p>
+
             <p>Photo ID Type: <b>{legaldocOptions[candidate.candidatePhotoIds[0]?.photoIdtype]}</b></p>
             <p>Photo ID Number: <b>{candidate.candidatePhotoIds[0].photoIdnumber}</b></p>
             <p>Photo ID Issue Date: <b>{formatDate(candidate.candidatePhotoIds[0].photoIdissueDate)}</b></p>
