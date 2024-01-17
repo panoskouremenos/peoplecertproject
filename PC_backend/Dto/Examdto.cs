@@ -18,4 +18,11 @@ namespace PC_backend.Dto
 
 		public virtual ICollection<ExamResultdto>? ExamResults { get; set; } = new List<ExamResultdto>();
 	}
+
+	public class PurchaseAndExamDto
+	{
+		public int ProductId { get; set; }
+		public DateTime PurchaseDate { get; set; }
+	}
+
 }

@@ -93,6 +93,51 @@ namespace PC_backend.Controllers
 			return Ok(eshopProduct);
 		}
 
+		[Authorize]
+		[HttpPost("PurchaseAndExam")]
+		public async Task<IActionResult> PostPurchaseAndExam([FromBody] PurchaseAndExamDto dto)
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized("User ID is missing in the token.");
+			}
+			var userId = int.Parse(userIdClaim.Value);
+
+			var candidate = await _context.Candidates.FirstOrDefaultAsync(c => c.UserId == userId);
+			if (candidate == null)
+			{
+				return NotFound("Candidate not found for the user.");
+			}
+
+			var purchase = new UserCertificatePurchase
+			{
+				CandidateId = candidate.CandidateId,
+				ProductId = dto.ProductId,
+				PurchaseDate = dto.PurchaseDate
+			};
+			_context.UserCertificatePurchases.Add(purchase);
+			await _context.SaveChangesAsync();
+
+			var certificateId = await _context.EshopProducts
+				.Where(e => e.ProductId == dto.ProductId)
+				.Select(e => e.CertificateId)
+				.FirstOrDefaultAsync();
+
+			var exam = new Exam
+			{
+				CandidateId = candidate.CandidateId,
+				DateAssigned = dto.PurchaseDate,
+				CertificateId = certificateId,
+				VoucherId = null // I am setting it to null for now, if there is an error, maybe it will get generated along with others.
+			};
+			_context.Exams.Add(exam);
+			await _context.SaveChangesAsync();
+
+			return Ok("Purchase and exam registration successful.");
+		}
+
+
 		[HttpPost]
 		public IActionResult PostEshopProduct(EshopProductDto eshopProductDto)
 		{
