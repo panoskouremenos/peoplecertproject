@@ -9,22 +9,21 @@ const RedeemVoucher = () => {
     const [examDate, setExamDate] = useState(new Date());
     const { token } = useContext(AuthContext);
 
+
+
     const handleRedeem = async () => {
         try {
-            const formattedDate = format(examDate, 'yyyy-MM-ddTHH:mm:ss'); // Adjust the date format
-    
-            console.log("Formatted Date:", formattedDate);
-            console.log("Voucher Code:", voucherCode);
-    
+            const formattedDate = examDate.toISOString();
             const response = await fetch(`https://localhost:5888/api/ExamVouchers/RedeemVoucher/${voucherCode}`, {
                 method: 'PUT',
                 headers: {
                     "Content-Type": "application/json",
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ redeemVoucherDto: { dateAssigned: formattedDate } }) // Adjusted structure
+                body: JSON.stringify({ dateAssigned: formattedDate })
             });
     
+            
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Response Status:', response.status, 'Response Text:', errorText);
