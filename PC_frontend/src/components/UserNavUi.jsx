@@ -4,14 +4,15 @@ import AuthContext from '../AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserTie } from '@fortawesome/free-solid-svg-icons';
 import { NavLink } from 'react-router-dom';
+import RoleContext from '../RoleContext';
 
 const UserNavUi = ({ handleLogout }) => {
     const [showPopover, setShowPopover] = useState(false);
     const target = useRef(null);
-  
     const handleTogglePopover = () => setShowPopover(!showPopover);
     const handleClickOutside = () => setShowPopover(false);
     const { user } = useContext(AuthContext);
+    const { isAdmin } = useContext(RoleContext);
     return (
       <>
         {user ? (
@@ -39,11 +40,13 @@ const UserNavUi = ({ handleLogout }) => {
                     Control Panel
                   </NavLink>
                   </Popover.Body>
+                {isAdmin === true ? (
                 <Popover.Body>
-                <NavLink to="/user/admin" >
+                  <NavLink to="/user/admin" >
                   Admin Panel
-                </NavLink>     
+                  </NavLink>  
                 </Popover.Body>
+                ) : ""}   
                 <Popover.Body>
                 { <NavLink to="user/mycertificates" >
                   My Certificates

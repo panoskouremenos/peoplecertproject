@@ -1,8 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
-
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
@@ -22,7 +20,7 @@ const AdminDashboard = () => {
 
         <div className="col-md-6">
           <h2>Certificates Operations</h2>
-          <button className="btn btn-success mb-2" onClick={() => navigate('admin/createcert')}>Create Certificate</button>
+          <button className="btn btn-success mb-2" onClick={() => navigate('/admin/createcert')}>Create Certificate</button>
           <button className="btn btn-secondary mb-2" onClick={() => navigate('/admin/certificates')}>View All Certificates</button>
           <button className="btn btn-secondary mb-2" onClick={() => navigate('/admin/vouchers')}>Generate Voucher</button>
         </div>

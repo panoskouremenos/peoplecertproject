@@ -22,8 +22,6 @@ const RedeemVoucher = () => {
                 },
                 body: JSON.stringify({ dateAssigned: formattedDate })
             });
-    
-            
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Response Status:', response.status, 'Response Text:', errorText);
