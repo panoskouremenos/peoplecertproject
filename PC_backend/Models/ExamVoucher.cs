@@ -13,9 +13,9 @@ public partial class ExamVoucher
 
     public int? CertificateId { get; set; }
 
-    public Guid? VoucherCode { get; set; }
+    public Guid VoucherCode { get; set; }
 
-    public bool? IsUsed { get; set; }
+    public bool IsUsed { get; set; }
 
     public virtual Candidate? Candidate { get; set; }
 

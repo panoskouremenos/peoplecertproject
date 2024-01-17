@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,23 +23,34 @@ namespace PC_backend.Controllers
             _context = context;
         }
 
-        // GET: api/ExamVouchers
-        [HttpGet]
-        public IActionResult GetExamVouchers()
-        {
-            if (_context.ExamVouchers == null)
-            {
-                return NotFound();
-            }
+		[HttpGet]
+		public IActionResult GetExamVouchers()
+		{
+			if (_context.ExamVouchers == null)
+			{
+				return NotFound();
+			}
 
-            var examVoucher = _context.ExamVouchers
-                  .Include(c => c.Certificate);
+			var examVouchers = _context.ExamVouchers
+				.Include(ev => ev.Certificate)
+				.Include(ev => ev.Candidate)
+				.ThenInclude(c => c.User) 
+				.Select(ev => new
+				{
+					VoucherID = ev.VoucherId,
+					CertificateTitle = ev.Certificate.Title,
+					IsUsed = ev.IsUsed,
+					VoucherCode = ev.VoucherCode,
+					UserName = ev.Candidate.User.UserName 
+				})
+				.ToList();
 
-            return Ok(examVoucher);
-        }
 
-        // GET: api/ExamVouchers/5
-        [HttpGet("{id}")]
+			return Ok(examVouchers);
+		}
+
+			// GET: api/ExamVouchers/5
+			[HttpGet("{id}")]
         public IActionResult GetExamVoucher(int id)
         {
             if (_context.ExamVouchers == null)
@@ -58,101 +70,107 @@ namespace PC_backend.Controllers
 
         // PUT: api/ExamVouchers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutExamVoucher(int id, ExamVoucherDto examVoucherDto)
-        {
-            var examVoucher = _context.ExamVouchers.FirstOrDefault(c => c.VoucherId == id);
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutExamVoucher(int id, ExamVoucherDto examVoucherDto)
+        //{
+        //    var examVoucher = _context.ExamVouchers.FirstOrDefault(c => c.VoucherId == id);
 
-            if (examVoucher == null)
-            {
-                return NotFound();
-            }
+        //    if (examVoucher == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            examVoucher.ProductId = examVoucherDto.ProductId;
-            examVoucher.CandidateId = examVoucherDto.CandidateId;
-            examVoucher.CertificateId = examVoucherDto.CertificateId;
-            examVoucher.VoucherCode = examVoucherDto.VoucherCode;
-            examVoucher.IsUsed = examVoucher.IsUsed;
+        //    examVoucher.ProductId = examVoucherDto.ProductId;
+        //   // examVoucher.CandidateId = examVoucherDto.CandidateId;
+        //    examVoucher.CertificateId = examVoucherDto.CertificateId;
+        //    examVoucher.VoucherCode = examVoucherDto.VoucherCode;
+        //    examVoucher.IsUsed = examVoucher.IsUsed;
 
-            _context.SaveChanges();
-            return Ok(examVoucher);
-        }
+        //    _context.SaveChanges();
+        //    return Ok(examVoucher);
+        //}
 
-        // POST: api/ExamVouchers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public IActionResult PostExamVoucher(ExamVoucherDto examVoucherdto)
-        {
-            if (_context.ExamVouchers == null)
-            {
-                return Problem("Entity is null.");
-            }
+		// POST: api/ExamVouchers
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
+		public IActionResult PostExamVoucher(ExamVoucherDto examVoucherDto)
+		{
+			// Find the ProductID from EshopProduct table based on CertificateId
+			var product = _context.EshopProducts
+								  .FirstOrDefault(p => p.CertificateId == examVoucherDto.CertificateId);
 
-            ExamVoucher examVoucher = new ExamVoucher()
-            {
-                ProductId = examVoucherdto.ProductId,
-                CandidateId = examVoucherdto.CandidateId,
-                CertificateId = examVoucherdto.CertificateId,
-                VoucherCode = examVoucherdto.VoucherCode,
-                IsUsed = examVoucherdto.IsUsed
+			if (product == null)
+			{
+				return NotFound("No product found for the given certificate ID.");
+			}
 
-            };
+			// Generate a new UUID (VoucherCode)
+			Guid voucherCode = Guid.NewGuid();
 
-            _context.ExamVouchers.Add(examVoucher);
-            _context.SaveChanges();
+			// Create ExamVoucher
+			ExamVoucher examVoucher = new ExamVoucher()
+			{
+				ProductId = product.ProductId,
+				CandidateId = 2,
+				CertificateId = examVoucherDto.CertificateId,
+				VoucherCode = voucherCode,
+				IsUsed = false
+			};
 
-            Exam exam = new Exam()
-            {
-                CandidateId = examVoucherdto.CandidateId,
-                CertificateId = examVoucherdto.CertificateId,
-                VoucherId = examVoucher.VoucherId,
-                DateAssigned = DateTime.Now // Set to the current date or any date you prefer
-            };
+			_context.ExamVouchers.Add(examVoucher);
+			_context.SaveChanges();
 
-            _context.Exams.Add(exam);
-            _context.SaveChanges();
+			return Ok(new { message = "Exam voucher created successfully.", voucherCode });
+		}
 
-            // Create ExamResult
-            ExamResult examResult = new ExamResult()
-            {
-                ExamId = exam.ExamId,
-                Score = 0,
-                ResultDate = DateTime.Now
+		[Authorize]
+		[HttpPut("RedeemVoucher/{voucherCode}")]
+		public IActionResult RedeemVoucher(Guid voucherCode, [FromBody] RedeemVoucherDto redeemVoucherDto)
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized("User ID is missing.");
+			}
+
+			var userId = int.Parse(userIdClaim.Value);
+			var candidate = _context.Candidates.FirstOrDefault(c => c.UserId == userId);
+
+			if (candidate == null)
+			{
+				return NotFound("Candidate not found.");
+			}
+			var voucher = _context.ExamVouchers.FirstOrDefault(v => v.VoucherCode == voucherCode);
+			Console.WriteLine($"Received date: {redeemVoucherDto.DateAssigned}");
+
+			Console.WriteLine($"Voucher: {voucher?.VoucherId}, IsUsed: {voucher?.IsUsed}");
 
 
-            };
 
-            _context.ExamResults.Add(examResult);
-            _context.SaveChanges();
+			if (voucher == null || voucher.IsUsed)
+			{
 
-            return Ok(examVoucher);
+				return Unauthorized("Voucher not found or already used.");
+			}
 
-        }
+			// Update the ExamVoucher entry
+			voucher.CandidateId = candidate.CandidateId;
+			voucher.IsUsed = true;
+			_context.SaveChanges();
 
-        // DELETE: api/ExamVouchers/5
-        [HttpDelete("{id}")]
-        public IActionResult DeleteExamVoucher(int id)
-        {
-            if (_context.ExamVouchers == null)
-            {
-                return NotFound();
-            }
+			// Create a new Exam entry
+			Exam exam = new Exam
+			{
+				CandidateId = candidate.CandidateId,
+				VoucherId = voucher.VoucherId,
+				DateAssigned = redeemVoucherDto.DateAssigned,
+				CertificateId = voucher.CertificateId
+			};
 
-            var examVoucher = _context.ExamVouchers.Find(id);
-            if (examVoucher == null)
-            {
-                return NotFound();
-            }
+			_context.Exams.Add(exam);
+			_context.SaveChanges();
 
-            _context.ExamVouchers.Remove(examVoucher);
-            _context.SaveChanges();
-
-            return Ok(examVoucher);
-        }
-
-        private bool ExamVoucherExists(int id)
-        {
-            return (_context.ExamVouchers?.Any(e => e.VoucherId == id)).GetValueOrDefault();
-        }
-    }
+			return Ok("Voucher redeemed and exam scheduled.");
+		}
+	}
 }
