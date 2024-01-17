@@ -2,6 +2,6 @@
 {
 	public class RedeemVoucherDto
 	{
-		public DateTime DateAssigned { get; set; }
+		public string DateAssigned { get; set; }
 	}
 }

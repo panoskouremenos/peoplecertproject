@@ -116,7 +116,8 @@ public class AuthController : ControllerBase
 			{
 				u.RoleId,
 				u.Cash,
-				CandidateId = u.Candidates.Any() ? u.Candidates.First().CandidateId.ToString() : "None"
+				UserName = u.UserName,
+				CandidateId = u.Candidates.Any() ? u.Candidates.First().CandidateId.ToString() : null
 			})
 			.FirstOrDefaultAsync();
 
@@ -127,6 +128,8 @@ public class AuthController : ControllerBase
 
 		return Ok(userStatus);
 	}
+
+
 
 
 

@@ -103,8 +103,6 @@ namespace PC_backend.Controllers
 			};
 
 			_context.ExamResults.Add(examResult);
-
-
 			_context.SaveChanges();
 
 

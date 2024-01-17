@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PC_backend.Dto;
@@ -99,6 +100,10 @@ namespace PC_backend.Controllers
 			{
 				return Unauthorized("User ID is missing.");
 			}
+			if (redeemVoucherDto == null || string.IsNullOrEmpty(redeemVoucherDto.DateAssigned))
+			{
+				return BadRequest("Invalid request data.");
+			}
 
 			var userId = int.Parse(userIdClaim.Value);
 			var candidate = _context.Candidates.FirstOrDefault(c => c.UserId == userId);
@@ -108,10 +113,16 @@ namespace PC_backend.Controllers
 				return NotFound("Candidate not found.");
 			}
 			var voucher = _context.ExamVouchers.FirstOrDefault(v => v.VoucherCode == voucherCode);
-			Console.WriteLine($"Received date: {redeemVoucherDto.DateAssigned}");
+			if (!DateTime.TryParseExact(redeemVoucherDto.DateAssigned,
+							"yyyyMMddHHmm",
+							CultureInfo.InvariantCulture,
+							DateTimeStyles.None,
+							out DateTime parsedDate))
+			{
+				return BadRequest("Invalid date format.");
+			}
 
-			Console.WriteLine($"Voucher: {voucher?.VoucherId}, IsUsed: {voucher?.IsUsed}");
-
+			Console.WriteLine($"Parsed Date: {parsedDate}");
 
 
 			if (voucher == null || voucher.IsUsed)
@@ -128,7 +139,7 @@ namespace PC_backend.Controllers
 			{
 				CandidateId = candidate.CandidateId,
 				VoucherId = voucher.VoucherId,
-				DateAssigned = redeemVoucherDto.DateAssigned,
+				DateAssigned = parsedDate,
 				CertificateId = voucher.CertificateId
 			};
 
