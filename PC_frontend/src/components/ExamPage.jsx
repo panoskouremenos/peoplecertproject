@@ -1,7 +1,36 @@
-import React, { useContext } from 'react';
+import React, { useState, useEffect , useContext } from 'react';
 import AuthContext from '../AuthContext';
+import ExamContext from '../ExamContext';
 
 const ExamPage = () => {
+  const [ exam , setExam ] = useState(null);
+  const { token } = useContext(AuthContext);
+  const [ isLoading , setIsLoading ] = useState(true);
+
+  const fetchExamQuestions = async(id) => {
+    try{
+      const response = await fetch(`https://localhost:5888/api/Certificates/${id}` , {
+        method : "GET",
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      if(response.ok){
+
+      }else{
+        alert("Kako");
+      }
+    }catch(error){
+
+    }finally{
+
+    }
+  }
+  useEffect(() => {
+    alert(token);
+  }, [token]);
+
   return (
     <div id="exampage" className="container mt-5">
       <div className="row">

@@ -38,6 +38,7 @@ import Certificates from "./components/Admin/certificates";
 import MyExams from "./components/User/MyExams";
 import AdminCreateCertificate from "./components/Admin/AdminCreateCertificate/AdminCreateCertificate";
 //import CreateCert from "./components/Admin/candidatedetails";
+import ExamNotification from "./components/ExamNotification";
 import Voucher from "./components/Admin/VoucherList";
 import PendingExams from "./components/User/PendingExams";
 
@@ -48,6 +49,13 @@ const App = () => {
   const [isCandidate, setIsCandidate] = useState(null);
   const [examSoon , setIsExamSoon] = useState(null);
   const [alerts , setAlerts] = useState([]);
+
+  /*
+  /auth/user/ExamSoon
+  
+  { examID : 5 , examDate : new Date() }
+
+  */
 
   const updateUsername = (newUsername) => {
     setUser(prevUser => ({ ...prevUser, username: newUsername }));
