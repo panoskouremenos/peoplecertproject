@@ -21,7 +21,6 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddControllers();
 
-// Configure CORS
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("MyCorsPolicy", policy =>
@@ -32,10 +31,8 @@ builder.Services.AddCors(options =>
 	});
 });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
-
 	 options =>
 	 {
 
@@ -61,6 +58,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+	//May not be needed.
     //options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
     //options.JsonSerializerOptions.MaxDepth = 7;
 });
@@ -98,7 +96,6 @@ if (!app.Environment.IsDevelopment())
 	app.UseHsts();
 }
 
-
 app.UseSession();
 
 if (app.Environment.IsDevelopment())
@@ -106,8 +103,6 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
-
-
 
 app.UseHttpsRedirection();
 app.UseRouting();

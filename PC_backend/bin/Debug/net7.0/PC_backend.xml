@@ -6,7 +6,12 @@
     <members>
         <member name="M:PC_backend.Controllers.CandidatesController.GetMyCandidateInfo">
             <summary>
-            Gets the infos of a certain candidate, (for Admin use)
+            Gets the infos of a certain candidate, (for Admin use)(DEPRECATED)
+            </summary>
+        </member>
+        <member name="M:PC_backend.Controllers.CandidatesController.Get(System.Int32)">
+            <summary>
+            Gets the infos of a certain candidate, (for Admin use)(DEPRECATED)
             </summary>
         </member>
         <member name="M:PC_backend.Controllers.CandidatesController.GetAll">

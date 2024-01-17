@@ -1,71 +1,60 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PC_backend.Dto;
 using PC_backend.Services;
 
 namespace PC_backend.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ExamCandiAnswerController : ControllerBase
-    {
-        private readonly ApplicationDbContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class ExamCandiAnswerController : ControllerBase
+	{
+		private readonly ApplicationDbContext _context;
 
-        public ExamCandiAnswerController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+		public ExamCandiAnswerController(ApplicationDbContext context)
+		{
+			_context = context;
+		}
 
+		[HttpPost("ProcessAnswers")]
+		public IActionResult ProcessCandidateAnswers(List<ExamCandidateAnswerDto> candidateAnswers)
+		{
 
+			foreach (var answer in candidateAnswers)
+			{
+				var correctAnswer = _context.Questions
+					.Where(q => q.QuestionId == answer.QuestionId)
+					.Select(q => q.Answer)
+					.FirstOrDefault();
 
-        [HttpPost("ProcessAnswers")]
-        public IActionResult ProcessCandidateAnswers(List<ExamCandidateAnswerDto> candidateAnswers)
-        {
-            // Assuming candidateAnswers is a list of answers sent from the front end
+				bool isCorrect = (answer.CandAnswer == correctAnswer);
 
-            foreach (var answer in candidateAnswers)
-            {
-                // Retrieve the correct answer from the database
-                var correctAnswer = _context.Questions
-                    .Where(q => q.QuestionId == answer.QuestionId)
-                    .Select(q => q.Answer)
-                    .FirstOrDefault();
+				var examResult = _context.ExamResults
+					.FirstOrDefault(er => er.ExamId == answer.Result.ExamId);
 
-                // Check if the candidate's answer is correct
-                bool isCorrect = (answer.CandAnswer == correctAnswer);
+				if (examResult != null)
+				{
+					if (isCorrect)
+					{
+						examResult.Score += 1;
+					}
+				}
 
-                // Update the ExamResult with the correctness information
-                var examResult = _context.ExamResults
-                    .FirstOrDefault(er => er.ExamId == answer.Result.ExamId);
+				_context.SaveChanges();
+			}
 
-                if (examResult != null)
-                {
-                    // Update the score based on correctness
-                    if (isCorrect)
-                    {
-                        examResult.Score += 1;
-                    }
-                }
+			var updatedExamResults = _context.ExamResults
+				.Where(er => er.ExamId == candidateAnswers.FirstOrDefault().Result.ExamId)
+				.Select(er => new ExamResultdto
+				{
+					ExamId = er.ExamId,
+					Score = er.Score,
+					ResultDate = er.ResultDate,
+					Passed = (er.Score >= 3)
+				})
+				.ToList();
 
-                // Save changes to the database
-                _context.SaveChanges();
-            }
+			return Ok(updatedExamResults);
+		}
 
-
-            // Return the updated exam results
-            var updatedExamResults = _context.ExamResults
-                .Where(er => er.ExamId == candidateAnswers.FirstOrDefault().Result.ExamId)
-                .Select(er => new ExamResultdto
-                {
-                    ExamId = er.ExamId,
-                    Score = er.Score,
-                    ResultDate = er.ResultDate,
-                    Passed = (er.Score >= 3)
-                })
-                .ToList();
-
-            return Ok(updatedExamResults);
-        }
-
-    }
+	}
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PC_backend.Dto;
 using PC_backend.Models;
@@ -14,116 +8,115 @@ using PC_backend.Utilities;
 
 namespace PC_backend.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ExamResultsController : ControllerBase
-    {
-        private readonly ApplicationDbContext _context;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class ExamResultsController : ControllerBase
+	{
+		private readonly ApplicationDbContext _context;
 
-        public ExamResultsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+		public ExamResultsController(ApplicationDbContext context)
+		{
+			_context = context;
+		}
 
-        // GET: api/ExamResults
-        [HttpGet]
-        public IActionResult GetExamResults()
-        {
-          if (_context.ExamResults == null)
-          {
-              return NotFound();
-          }
+		[HttpGet]
+		public IActionResult GetExamResults()
+		{
+			if (_context.ExamResults == null)
+			{
+				return NotFound();
+			}
 
-            var resultDtos = _context.ExamResults
-         .Select(er => new
-         {
-             resultId = er.ResultId,
-             examId = er.ExamId,
-             score = er.Score,
-             resultDate = er.ResultDate,
-             passed = er.Passed,
-             //exam = er.Exam, // Include other properties if needed
-            // examCandAnswers = er.ExamCandAnswers // Include other properties if needed
-         })
-         .ToList();
+			var resultDtos = _context.ExamResults
+		 .Select(er => new
+		 {
+			 resultId = er.ResultId,
+			 examId = er.ExamId,
+			 score = er.Score,
+			 resultDate = er.ResultDate,
+			 passed = er.Passed,
+			 //exam = er.Exam, // Include other properties if needed
+			 // examCandAnswers = er.ExamCandAnswers // Include other properties if needed
+		 })
+		 .ToList();
 
-            return Ok(resultDtos);
-          //  return Ok(_context.ExamResults);
-        }
+			return Ok(resultDtos);
+			//  return Ok(_context.ExamResults);
+		}
 
-        // GET: api/ExamResults/5
-        [HttpGet("{id}")]
-        public IActionResult GetExamResult(int id)
-        {
-          if (_context.ExamResults == null)
-          {
-              return NotFound();
-          }
-            var examResult =_context.ExamResults
-                .Include(e=>e.Exam)
-                .Include(eca => eca.ExamCandAnswers)
-                .FirstOrDefault(c=>c.ResultId == id);
+		// GET: api/ExamResults/5
+		[HttpGet("{id}")]
+		public IActionResult GetExamResult(int id)
+		{
+			if (_context.ExamResults == null)
+			{
+				return NotFound();
+			}
+			var examResult = _context.ExamResults
+				.Include(e => e.Exam)
+				.Include(eca => eca.ExamCandAnswers)
+				.FirstOrDefault(c => c.ResultId == id);
 
-            if (examResult == null)
-            {
-                return NotFound();
-            }
+			if (examResult == null)
+			{
+				return NotFound();
+			}
 
-            return Ok(examResult);
-           // return Ok(examResultDto);
-        }
+			return Ok(examResult);
+			// return Ok(examResultDto);
+		}
 
-[Authorize]
-[HttpGet("UserCertificates")]
-public async Task<IActionResult> UserCertificates()
-{
-    var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
-    if (userIdClaim == null)
-    {
-        return Unauthorized(new { message = "User ID is missing in the token." });
-    }
+		[Authorize]
+		[HttpGet("UserCertificates")]
+		public async Task<IActionResult> UserCertificates()
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized(new { message = "User ID is missing in the token." });
+			}
 
-    var userId = int.Parse(userIdClaim.Value);
+			var userId = int.Parse(userIdClaim.Value);
 
-    // Query the database to find the candidate associated with this user ID
-    var candidate = await _context.Candidates
-        .FirstOrDefaultAsync(c => c.UserId == userId);
+			// Query the database to find the candidate associated with this user ID
+			var candidate = await _context.Candidates
+				.FirstOrDefaultAsync(c => c.UserId == userId);
 
-    if (candidate == null)
-    {
-        return Ok(new { message = "User is not a candidate" });
-    }
+			if (candidate == null)
+			{
+				return Ok(new { message = "User is not a candidate" });
+			}
 
-    int CandId = candidate.CandidateId;
+			int CandId = candidate.CandidateId;
 
-    var passedCertificates = _context.ExamResults
-        .Include(er => er.Exam)
-        .ThenInclude(exam => exam.Voucher)
-        .ThenInclude(voucher => voucher.Certificate)
-        .Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == true)
-        .Select(er => new
-        {
-            CertificateTitle = er.Exam.Voucher.Certificate.Title,
-            ExamDate = er.ResultDate,
-            FirstName = candidate.FirstName,
-            LastName = candidate.LastName,
-            Score = er.Score,
-            MaxScore = er.Exam.Voucher.Certificate.MaximumScore
-        })
-        .ToList()
-        .Select(pc => new PassedCertificateDto
-        {
-            CertificateTitle = pc.CertificateTitle,
-            ExamDate = (DateTime)pc.ExamDate,
-            FirstName = pc.FirstName,
-            LastName = pc.LastName,
-            ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
-        })
-        .Distinct()
-        .ToList();
+			var passedCertificates = _context.ExamResults
+				.Include(er => er.Exam)
+				.ThenInclude(exam => exam.Voucher)
+				.ThenInclude(voucher => voucher.Certificate)
+				.Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == true)
+				.Select(er => new
+				{
+					CertificateTitle = er.Exam.Voucher.Certificate.Title,
+					ExamDate = er.ResultDate,
+					FirstName = candidate.FirstName,
+					LastName = candidate.LastName,
+					Score = er.Score,
+					MaxScore = er.Exam.Voucher.Certificate.MaximumScore
+				})
+				.ToList()
+				.Select(pc => new PassedCertificateDto
+				{
+					CertificateTitle = pc.CertificateTitle,
+					ExamDate = (DateTime)pc.ExamDate,
+					FirstName = pc.FirstName,
+					LastName = pc.LastName,
+					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
+				})
+				.Distinct()
+				.ToList();
 
-    return Ok(passedCertificates);
-}
+			return Ok(passedCertificates);
+		}
 
 		[Authorize]
 		[HttpGet("MyExamResults")]
@@ -161,7 +154,7 @@ public async Task<IActionResult> UserCertificates()
 					FirstName = candidate.FirstName,
 					LastName = candidate.LastName,
 					Score = er.Score,
-                    Passed = er.Passed,
+					Passed = er.Passed,
 					MaxScore = er.Exam.Voucher.Certificate.MaximumScore
 				})
 				.ToList()
@@ -176,7 +169,7 @@ public async Task<IActionResult> UserCertificates()
 				})
 				.Distinct()
 				.ToList();
-		return Ok(passedCertificates);
+			return Ok(passedCertificates);
 		}
 
 
@@ -205,74 +198,73 @@ public async Task<IActionResult> UserCertificates()
 		// POST: api/ExamResults
 		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[HttpPost]
-        public IActionResult PostExamResult(ExamResultdto examResultdto)
-        {
-          if (_context.ExamResults == null)
-          {
-              return Problem("Entity is null.");
-          }
+		public IActionResult PostExamResult(ExamResultdto examResultdto)
+		{
+			if (_context.ExamResults == null)
+			{
+				return Problem("Entity is null.");
+			}
 
-            ExamResult examResult = new ExamResult()
-            {
-                ExamId = examResultdto.ExamId,
-                Score =(int)examResultdto.Score,
-                ResultDate = (DateTime)examResultdto.ResultDate,
-                Passed = examResultdto.Passed              
-            };
-
-
-
-            _context.ExamResults.Add(examResult);
-            _context.SaveChanges();
-
-            return Ok(examResult);
-        }
-
-        // DELETE: api/ExamResults/5
-        [HttpDelete("{id}")]
-        public IActionResult DeleteExamResult(int id)
-        {
-            if (_context.ExamResults == null)
-            {
-                return NotFound();
-            }
-            var examResult = _context.ExamResults.FirstOrDefault(c=>c.ResultId == id);
-            
-            if (examResult == null)
-            {
-                return NotFound();
-            }
-
-            _context.ExamResults.Remove(examResult);
-            _context.SaveChanges();
-
-            return Ok(examResult);
-        }
-
-        private bool ExamResultExists(int id)
-        {
-            return (_context.ExamResults?.Any(e => e.ResultId == id)).GetValueOrDefault();
-        }
-
-        [HttpGet("{examId}/Results")]
-        public IActionResult GetExamResults(int examId)
-        {
-            var examResult = _context.ExamResults
-                .Where(er => er.ExamId == examId)
-                .FirstOrDefault();
-
-            if (examResult == null)
-            {
-                return NotFound("Exam result not found");
-            }
-
-            // Calculate pass/fail status based on our criteria
-            var passOrFail = (examResult.Score >= 3) ? "Pass" : "Fail";
+			ExamResult examResult = new ExamResult()
+			{
+				ExamId = examResultdto.ExamId,
+				Score = (int)examResultdto.Score,
+				ResultDate = (DateTime)examResultdto.ResultDate,
+				Passed = examResultdto.Passed
+			};
 
 
-            examResult.Passed = (examResult.Score >= 3);
-            _context.SaveChanges();
-            /*if (passOrFail == "Pass")
+
+			_context.ExamResults.Add(examResult);
+			_context.SaveChanges();
+
+			return Ok(examResult);
+		}
+
+		// DELETE: api/ExamResults/5
+		[HttpDelete("{id}")]
+		public IActionResult DeleteExamResult(int id)
+		{
+			if (_context.ExamResults == null)
+			{
+				return NotFound();
+			}
+			var examResult = _context.ExamResults.FirstOrDefault(c => c.ResultId == id);
+
+			if (examResult == null)
+			{
+				return NotFound();
+			}
+
+			_context.ExamResults.Remove(examResult);
+			_context.SaveChanges();
+
+			return Ok(examResult);
+		}
+
+		private bool ExamResultExists(int id)
+		{
+			return (_context.ExamResults?.Any(e => e.ResultId == id)).GetValueOrDefault();
+		}
+
+		[HttpGet("{examId}/Results")]
+		public IActionResult GetExamResults(int examId)
+		{
+			var examResult = _context.ExamResults
+				.Where(er => er.ExamId == examId)
+				.FirstOrDefault();
+
+			if (examResult == null)
+			{
+				return NotFound("Exam result not found");
+			}
+
+			var passOrFail = (examResult.Score >= 3) ? "Pass" : "Fail";
+
+
+			examResult.Passed = (examResult.Score >= 3);
+			_context.SaveChanges();
+			/*if (passOrFail == "Pass")
             {
                 examResult.Passed = true;
             }
@@ -282,15 +274,15 @@ public async Task<IActionResult> UserCertificates()
             }
             _context.SaveChanges();*/
 
-            var resultDto = new
-            {
-                ExamId = examResult.ExamId,
-                Score = examResult.Score,
-                PassOrFail = passOrFail
-                
-            };
+			var resultDto = new
+			{
+				ExamId = examResult.ExamId,
+				Score = examResult.Score,
+				PassOrFail = passOrFail
 
-            return Ok(resultDto);
-        }
-    }
+			};
+
+			return Ok(resultDto);
+		}
+	}
 }

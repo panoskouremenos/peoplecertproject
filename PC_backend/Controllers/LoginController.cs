@@ -1,4 +1,4 @@
-﻿﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
@@ -49,7 +49,7 @@ public class AuthController : ControllerBase
 		{
 			UserName = userRegisterDto.UserName,
 			RoleId = 1,
-			IsActive = true, 
+			IsActive = true,
 		};
 
 		user.PasswordHash = _passwordHasher.HashPassword(user, userRegisterDto.Password);
@@ -99,10 +99,9 @@ public class AuthController : ControllerBase
 	}
 
 	[Authorize]
-	[HttpGet("GetUsername")]
-	public async Task<ActionResult<string>> GetUsername()
+	[HttpGet("GetStatus")]
+	public async Task<IActionResult> GetStatus()
 	{
-		// Extract the user ID from the JWT token's 'id' claim
 		var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
 		if (userIdClaim == null)
 		{
@@ -111,7 +110,38 @@ public class AuthController : ControllerBase
 
 		var userId = int.Parse(userIdClaim.Value);
 
-		// Query the database to find the user by ID
+		var userStatus = await _context.Usertbls
+			.Where(u => u.UserId == userId)
+			.Select(u => new
+			{
+				u.RoleId,
+				u.Cash,
+				CandidateId = u.Candidates.Any() ? u.Candidates.First().CandidateId.ToString() : "None"
+			})
+			.FirstOrDefaultAsync();
+
+		if (userStatus == null)
+		{
+			return NotFound("User not found.");
+		}
+
+		return Ok(userStatus);
+	}
+
+
+
+	[Authorize]
+	[HttpGet("GetUsername")]
+	public async Task<ActionResult<string>> GetUsername()
+	{
+		var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+		if (userIdClaim == null)
+		{
+			return Unauthorized("User ID is missing in the token.");
+		}
+
+		var userId = int.Parse(userIdClaim.Value);
+
 		var user = await _context.Usertbls
 			.FirstOrDefaultAsync(u => u.UserId == userId);
 

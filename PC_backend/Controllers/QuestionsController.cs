@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using PC_backend.Dto;
 using PC_backend.Models;
 using PC_backend.Services;
@@ -23,7 +17,6 @@ namespace PC_backend.Controllers
             _context = context;
         }
 
-		// GET: api/Questions
 		/// <summary>
 		/// Gets all the questions in the database.
 		/// </summary>
@@ -61,7 +54,6 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Edit a question of a certain ID
 		/// </summary>
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[HttpPut("{id}")]
         public IActionResult PutQuestion(int id, Questiondto questiondto)
         {
@@ -84,7 +76,6 @@ namespace PC_backend.Controllers
 		/// <summary>
 		/// Writes a question to the database (You have to assign the topic number).
 		/// </summary>
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[HttpPost]
         public IActionResult PostQuestion(Questiondto questiondto)
         {
