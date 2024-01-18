@@ -1,4 +1,5 @@
 import React, { useState, useEffect , useContext } from 'react';
+import { useParams } from 'react-router-dom';
 import AuthContext from '../AuthContext';
 import ExamContext from '../ExamContext';
 
@@ -6,8 +7,9 @@ const ExamPage = () => {
   const [questions, setQuestions] = useState([]);
   const [activeQuestion , setActiveQuestion] = useState(0);
   const { token } = useContext(AuthContext);
+  const { id } = useParams();
+  const { examSoon , setIsExamSoon } = useContext(ExamContext);
   const [isLoading, setIsLoading] = useState(true);
-
 
   useEffect(() => {
     const tickedquestions = JSON.parse(localStorage.getItem("tickedquestions"));
@@ -20,10 +22,10 @@ const ExamPage = () => {
       console.log(questions);
       setIsLoading(false);
     }else{
-      fetchExamQuestions(11);
+      fetchExamQuestions(id);
     }
 
-  }, [token]);
+  }, [id , token]);
 
   function convertNumberToLetter(number) {
     if (number >= 0 && number <= 25) {
@@ -50,6 +52,47 @@ const ExamPage = () => {
     setActiveQuestion(index);
   }
 
+  const handlePostExam = async() => {
+    const formattedExam = questions.map((question) => {
+      const { topicDesc, questionId, questionText, possibleAnswers, checkedAnswer } = question;
+  
+      // Split the possible answers into an array
+      const possibleAnswersArray = possibleAnswers.split(', ');
+  
+      return {
+        topicDesc,
+        questionId,
+        questionText,
+        possibleAnswers,
+        candAnswer: possibleAnswersArray[checkedAnswer]
+      };
+    });
+    console.log(formattedExam);
+try {
+  const response = await fetch(`https://localhost:5888/api/ExamCandiAnswer/ProcessAnswers`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(
+      formattedExam
+    )
+  });
+
+  if(response.ok){
+    alert('We did it bro');
+  }else{
+    alert('We didnt do it bro =( .');
+  }
+  }catch(error){
+    alert(error);
+  }finally{
+
+  }
+
+}
+  
   const fetchExamQuestions = async (id) => {
     try {
       const response = await fetch(`https://localhost:5888/api/Certificates/${id}`, {
@@ -102,7 +145,7 @@ const ExamPage = () => {
         </div>
         <div className="col-md-9 d-flex flex-column align-items-center">
           <div className="border p-3 d-flex flex-column justify-content-center align-items-center">
-            <h2 className="text-center">MCQ Quiz</h2>
+            <h2 className="text-center">{examSoon?.certificateTitle}</h2>
             <div className="d-flex flex-row align-items-center question-title">
               <h3 className="text-danger">{questions[activeQuestion].questionText}</h3>
             </div>
@@ -116,7 +159,7 @@ const ExamPage = () => {
             })
             }
             </div>
-            <div className="p-3 bg-white gap-3" style={{ minWidth : "100%"}}>
+            <div className="p-3 bg-white d-flex justify-content-center gap-3" style={{ minWidth : "100%"}}>
               {activeQuestion > 0 && 
               <button onClick={(e) => setActiveQuestion(activeQuestion > 0 ? activeQuestion-1 : 0)} className="btn btn-primary d-flex align-items-center btn-danger" type="button">
                 <i className="fa fa-angle-left mt-1 mr-1 float-left"></i>&nbsp;previous
@@ -129,7 +172,7 @@ const ExamPage = () => {
               }
             </div>
           </div>
-          <div className="endexam mt-3"><button className="btn btn-danger">End Exam</button></div>
+          <div className="endexam mt-3"><button className="btn btn-danger" onClick={handlePostExam}>End Exam</button></div>
         </div>
               </>
             )}

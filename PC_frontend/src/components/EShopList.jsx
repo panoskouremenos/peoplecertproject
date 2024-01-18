@@ -28,15 +28,6 @@ const EShopList = ({ eshops, boughtProducts , onadd, onremove , onbuy }) => {
             eshop={eshop}
           />
         ))}
-        {boughtProducts.map((eshop) => {
-          return(
-          <div className="card bought m-1" key={eshop.productId}>
-          <div className="card-body">
-              <h5 className="card-title">{eshop.productName}</h5>
-              <p className="card-text">{eshop.description}</p>
-          </div>
-      </div>)
-        })}
       </div>
     </div>
   );

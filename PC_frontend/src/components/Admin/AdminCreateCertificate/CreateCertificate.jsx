@@ -18,7 +18,7 @@ const CreateCertificate = ({ certificateInfo, setCertificateInfo }) => {
         <Form.Label column sm="3">
           Certificate:
         </Form.Label>
-        <Col sm="9">
+        <Col sm="9 mb-1">
           <Form.Control
             type="text"
             name="title"
@@ -29,7 +29,7 @@ const CreateCertificate = ({ certificateInfo, setCertificateInfo }) => {
         <Form.Label column sm="3">
           Assessment Test Code:
         </Form.Label>
-        <Col sm="9">
+        <Col sm="9 mb-1">
           <Form.Control
             type="text"
             name="assessmentTestCode"
@@ -40,7 +40,7 @@ const CreateCertificate = ({ certificateInfo, setCertificateInfo }) => {
         <Form.Label column sm="3">
           Max Score:
         </Form.Label>
-        <Col sm="9">
+        <Col sm="9 mb-1">
           <Form.Control
             type="number"
             name="maximumScore"
@@ -51,7 +51,7 @@ const CreateCertificate = ({ certificateInfo, setCertificateInfo }) => {
         <Form.Label column sm="3">
           Min Score:
         </Form.Label>
-        <Col sm="9">
+        <Col sm="9 mb-1">
           <Form.Control
             type="number"
             name="minimumScore"

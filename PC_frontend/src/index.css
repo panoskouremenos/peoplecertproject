@@ -304,6 +304,7 @@ html,body{
   width: 100%;
   box-shadow: inset 0px 0px 5px rgba(0,0,0,.2);
   font-family: Cursive !important;
+  bottom: 0px;
 }
 
 .notchecked{

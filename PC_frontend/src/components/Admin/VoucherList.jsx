@@ -83,7 +83,7 @@ const VoucherList = () => {
 
     return (
         <div className="container">
-            <Button onClick={() => setShowModal(true)}>Create new Voucher</Button>
+            <Button className="m-2" onClick={() => setShowModal(true)}>Create new Voucher</Button>
 
             <Table striped bordered hover>
                 <thead>

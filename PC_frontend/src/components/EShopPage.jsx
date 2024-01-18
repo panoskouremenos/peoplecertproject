@@ -22,47 +22,52 @@ const EShopPage = () => {
           'Authorization': `Bearer ${token}`,
         },
       });
-
+  
       if (response.ok) {
         const products = await response.json();
-        setProductsToBuy(
-          products.map((product) => ({ ...product, inBasket: false }))
-        );
-
+        const initialProductsToBuy = products.map((product) => ({ ...product, inBasket: false, isAlreadyBought: false }));
+        setProductsToBuy(initialProductsToBuy);
+  
         if (token) {
-          fetchUserProducts(token);
+          fetchUsersProducts(token, initialProductsToBuy);
         }
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
-
-  const fetchUserProducts = async (token) => {
+  
+  const fetchUsersProducts = async (token, initialProductsToBuy) => {
     try {
-      const response = await fetch("https://localhost:5888/api/EshopProducts", {
+      const response = await fetch("https://localhost:5888/api/EshopProducts/MyPurchases", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          'Authorization': `Bearer ${token}`,
-        },
+          'Authorization': `Bearer ${token}`
+        }
       });
-
+  
       if (response.ok) {
-        const products = await response.json();
-
-        setProductsToBuy((prevProducts) => {
-          const updatedProducts = prevProducts.filter((prod) => !products.some((p) => p.ProductID === prod.ProductID));
-          return updatedProducts.map((product) => ({ ...product, inBasket: false }));
-        });
-
-        setProductsBought(products.map((product) => ({ ...product })));
+        const result = await response.json();
+        console.log(result);
+  
+        // Update the state based on purchased product IDs
+        const updatedProducts = initialProductsToBuy.map(product => (
+          result.includes(product.productId) ? { ...product, isAlreadyBought: true } : product
+        ));
+        console.log(updatedProducts);
+        setProductsToBuy(updatedProducts);
+      } else {
+        console.log(response.status);
+        console.log('Response not okay');
       }
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.log(error);
+    } finally {
+      // You can add any cleanup or additional logic here
     }
   };
-
+  
   useEffect(() => {
     fetchProducts();
   }, [token]);
@@ -70,8 +75,9 @@ const EShopPage = () => {
 
   const handleBuyCertificate = (id, examDate) => {
     const newAlerts = [];
+    
     const productIndex = productsToBuy.findIndex(
-      (product) => product.ProductID === id
+      (product) => product.productId === id
     );
   
     if (productIndex !== -1) {
@@ -127,7 +133,7 @@ const EShopPage = () => {
   const handleRemoveCertificate = (id) => {
     const newAlerts = [];
     const productIndex = productsToBuy.findIndex(
-      (product) => product.ProductID === id
+      (product) => product.productId === id
     );
     if (productIndex !== -1) {
       setProductsToBuy((prevProducts) => {
@@ -153,24 +159,21 @@ const EShopPage = () => {
     const newAlerts = [];
     const productsToPurchase = productsToBuy
       .filter((prod) => prod.inBasket === true)
-      .map(({ ProductID, examDate }) => ({ productId: ProductID, examDate }));
-  
+      .map(({ productId, examDate }) => ({ productId: productId, purchaseDate : examDate }));
+
     if (productsToPurchase.length > 0) {
       try {
-        const response = await fetch("https://localhost:5888/api/EshopProducts", {
+        console.log(JSON.stringify([...productsToPurchase]));
+        const response = await fetch("https://localhost:5888/api/EshopProducts/PurchaseAndExam", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            products: productsToPurchase,
-          }),
+          body: JSON.stringify([...productsToPurchase]),
         });
-  
-        if (response.status === 200) {
-          const result = await response.json();
-  
+
+        if (response.status == 200) {
           setProductsToBuy((prevProductsToBuy) => {
             const updatedProducts = prevProductsToBuy.map((prod) => {
               if (prod.inBasket) {
@@ -179,7 +182,7 @@ const EShopPage = () => {
               return prod;
             });
   
-            return updatedProducts.filter((prod) => !productsToPurchase.find(p => p.productId === prod.ProductID));
+            return updatedProducts.filter((prod) => !productsToPurchase.find(p => p.productId === prod.productId));
           });
   
           setProductsBought((prevBoughtProducts) => {
@@ -198,7 +201,7 @@ const EShopPage = () => {
         } else {
           newAlerts.push({
             variant: "danger",
-            message: "Something went wrong.",
+            message: "You need to be a candidate to buy!",
           });
         }
         setAlerts(newAlerts);
@@ -257,8 +260,8 @@ const EShopPage = () => {
                 {productsToBuy.map((product) => {
                   if (product.inBasket === true) {
                     return (
-                      <tr key={product.ProductID}>
-                        <td>{product.ProductName}</td>
+                      <tr key={product.productId}>
+                        <td>{product.productName}</td>
                         <td>{new Date(product.examDate).toLocaleDateString('el-GR', {
                         year: 'numeric',
                         month: 'long',
@@ -266,7 +269,7 @@ const EShopPage = () => {
                         hour: 'numeric',
                         minute: 'numeric',
                       })}</td>
-                        <td className="text-danger">${product.Price}</td>
+                        <td className="text-danger">${product.price}</td>
                       </tr>
                     );
                   }
@@ -278,7 +281,7 @@ const EShopPage = () => {
                     $
                     {productsToBuy
                       .filter((prod) => prod.inBasket === true)
-                      .map((prod) => prod.Price)
+                      .map((prod) => prod.price)
                       .reduce((acc, price) => acc + price, 0)}
                   </td>
                 </tr>

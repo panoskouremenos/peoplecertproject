@@ -20,9 +20,9 @@ const AdminDashboard = () => {
 
         <div className="col-md-6">
           <h2>Certificates Operations</h2>
-          <button className="btn btn-success mb-2" onClick={() => navigate('/admin/createcert')}>Create Certificate</button>
-          <button className="btn btn-secondary mb-2" onClick={() => navigate('/admin/certificates')}>View All Certificates</button>
-          <button className="btn btn-secondary mb-2" onClick={() => navigate('/admin/vouchers')}>Generate Voucher</button>
+          <button className="btn btn-success m-1" onClick={() => navigate('/admin/createcert')}>Create Certificate</button>
+          <button className="btn btn-secondary m-1" onClick={() => navigate('/admin/certificates')}>View All Certificates</button>
+          <button className="btn btn-secondary m-1" onClick={() => navigate('/admin/vouchers')}>Generate Voucher</button>
         </div>
       </div>
     </div>

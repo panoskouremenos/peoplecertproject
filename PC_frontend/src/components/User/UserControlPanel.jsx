@@ -452,7 +452,9 @@ const CandidateDetails = () => {
             <button className="btn btn-warning me-2" onClick={() => setEditing(true)}>Edit</button>
             <button className="btn btn-secondary ms-2" onClick={() => navigate(-1)}>Back</button>
           </div>
-          <button className="btn btn-info mb-2" onClick={() => navigate('/cp/changecreds')}>Change your User Credentials</button>
+          <div className="d-flex align-items-center justify-content-center" style={{ width : "100%"}}>
+          <button className="btn btn-info text-white mt-2" style={{ maxWidth : "50%"}}onClick={() => navigate('/cp/changecreds')}>Change your User Credentials</button>
+          </div>
         </div>
       )}
     </div>

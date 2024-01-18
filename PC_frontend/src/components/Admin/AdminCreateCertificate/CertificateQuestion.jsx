@@ -38,7 +38,7 @@ const CertificateQuestion = ({
       <Form.Label column sm="3">
         Question Text:
       </Form.Label>
-      <Col sm="9">
+      <Col sm="9 mb-1">
         <Form.Control
           type="text"
           name="questionText"

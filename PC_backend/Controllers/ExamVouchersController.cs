@@ -46,45 +46,61 @@ namespace PC_backend.Controllers
 
 			return Ok(examVouchers);
 		}
-		[Authorize(Roles = "1")]
-		[HttpGet("UpcomingExam")]
-		public IActionResult GetUpcomingExam()
-		{
-			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
-			if (userIdClaim == null)
-			{
-				return Unauthorized("User ID is missing.");
-			}
+        [Authorize(Roles = "1")]
+        [HttpGet("UpcomingExam")]
+        public IActionResult GetUpcomingExam()
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("User ID is missing.");
+                }
 
-			var userId = int.Parse(userIdClaim.Value);
-			var now = DateTime.UtcNow;
+                var userId = int.Parse(userIdClaim.Value);
 
-			var upcomingExam = _context.Candidates
-				.Where(c => c.UserId == userId)
-				.Join(_context.Exams,
-					  candidate => candidate.CandidateId,
-					  exam => exam.CandidateId,
-					  (candidate, exam) => new { candidate, exam })
-				.Join(_context.Certificates,
-					  combined => combined.exam.CertificateId,
-					  certificate => certificate.CertificateId,
-					  (combined, certificate) => new { combined.exam, certificate.Title })
-				.Select(e => new
-				{
-					e.exam.ExamId,
-					CertificateTitle = e.Title,
-					TimeRemaining = e.exam.DateAssigned.Subtract(now).TotalMinutes
-				})
-				.FirstOrDefault(e => e.TimeRemaining <= 30 && e.TimeRemaining > 0);
+                // Get Athens time zone
+                var athensTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Athens");
 
-			if (upcomingExam == null)
-			{
-				return NotFound("No upcoming exam within 30 minutes.");
-			}
+                // Convert UTC now to Athens time
+                var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, athensTimeZone);
 
-			return Ok(upcomingExam);
-		}
-		[Authorize(Roles = "1")]
+                var upcomingExam = _context.Candidates
+                    .Where(c => c.UserId == userId)
+                    .Join(_context.Exams,
+                          candidate => candidate.CandidateId,
+                          exam => exam.CandidateId,
+                          (candidate, exam) => new { candidate, exam })
+                    .Join(_context.Certificates,
+                          combined => combined.exam.CertificateId,
+                          certificate => certificate.CertificateId,
+                          (combined, certificate) => new { combined.exam, certificate.Title })
+                    .Where(e => EF.Functions.DateDiffMinute(now, e.exam.DateAssigned) <= 30 && EF.Functions.DateDiffMinute(now, e.exam.DateAssigned) > 0)
+                    .Select(e => new
+                    {
+                        e.exam.ExamId,
+                        CertificateTitle = e.Title,
+                        TimeRemaining = EF.Functions.DateDiffMinute(now, e.exam.DateAssigned)
+                    })
+                    .FirstOrDefault();
+
+                if (upcomingExam == null)
+                {
+                    return NotFound("No upcoming exam within 30 minutes.");
+                }
+
+                return Ok(upcomingExam);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.Error.WriteLine(ex);
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [Authorize(Roles = "1")]
 		[HttpGet("{id}")]
 		public IActionResult GetExamVoucher(int id)
 		{

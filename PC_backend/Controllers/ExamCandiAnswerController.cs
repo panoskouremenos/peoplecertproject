@@ -30,9 +30,8 @@ namespace PC_backend.Controllers
 					.FirstOrDefault();
 
 				bool isCorrect = (answer.CandAnswer == correctAnswer);
-
-				var examResult = _context.ExamResults
-					.FirstOrDefault(er => er.ExamId == answer.Result.ExamId);
+                var examResult = _context.ExamResults.FirstOrDefault(er => er.ExamId == answer.Result.ExamId);
+                Console.WriteLine(examResult);
 
 				if (examResult != null)
 				{

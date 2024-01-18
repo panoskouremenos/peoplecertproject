@@ -48,38 +48,7 @@ const App = () => {
   const [isAdmin, setIsAdmin] = useState(null);
   const [isCandidate, setIsCandidate] = useState(null);
   const [examSoon , setIsExamSoon] = useState(null);
-  //{ examID : 1 , examTitle : "C# Fundamentals" , timer : new Date()}
   const [alerts , setAlerts] = useState([]);
-
-  const [ timer , setTimer ] = useState("30:00");
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const [minutes, seconds] = timer.split(':').map(Number);
-
-      const totalSeconds = minutes * 60 + seconds;
-
-      if (totalSeconds > 0) {
-        const newMinutes = Math.floor((totalSeconds - 1) / 60);
-        const newSeconds = (totalSeconds - 1) % 60;
-
-        const newTimer = `${String(newMinutes).padStart(2, '0')}:${String(newSeconds).padStart(2, '0')}`;
-        setTimer(newTimer);
-      } else {
-        clearInterval(intervalId);
-        console.log("Timer reached 0!");
-      }
-    }, 1000); 
-
-    return () => clearInterval(intervalId);
-  }, [timer]);
-
-  /*
-  /auth/user/ExamSoon
-  
-  { examID : 5 , examDate : new Date() }
-
-  */
 
   const updateUsername = (newUsername) => {
     setUser(prevUser => ({ ...prevUser, username: newUsername }));
@@ -92,9 +61,9 @@ const App = () => {
     }
     if (token) {
       fetchUserData(local_token);
+      fetchUserExamSoon(local_token);
     }
   }, [token]);
-
 
   const handleLogout = () => {
     setUser(null);
@@ -104,6 +73,30 @@ const App = () => {
     localStorage.removeItem("token");
   };
 
+  const fetchUserExamSoon = async (token) => {
+    const newAlerts = [];
+    try {
+      const response = await fetch('https://localhost:5888/api/ExamVouchers/UpcomingExam', {
+        method: 'GET',
+        headers: {
+          'Authorization': `bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if(response.ok){
+        const result = await response.json();
+        setIsExamSoon({ timeRemaining : result.timeRemaining , examID : result.examId , certificateTitle : result.certificateTitle });
+      }else{ 
+        setIsExamSoon(null);
+      }
+    }catch(error){
+      newAlerts.push({ variant : "danger" , message : error});
+    }finally{
+      setTimeout(function(){
+        fetchUserExamSoon(token); 
+      },1000);
+    }
+  }
 
   const fetchUserData = async (token) => {
     const newAlerts = [];
@@ -138,6 +131,7 @@ const App = () => {
       <AuthContext.Provider value={{ user, setUser, token, setToken }}>
       <RoleContext.Provider value={{ isAdmin , setIsAdmin }}>
       <CandidateContext.Provider value={{ isCandidate }}>
+      <ExamContext.Provider value={{ examSoon , setIsExamSoon }}>
         <div>
           <nav className="navbar navbar-expand-md bg-white">
             <NavLink to="/" className="navbar-brand ">
@@ -172,26 +166,28 @@ const App = () => {
                     </NavLink>
                   </li>
 
-                  {!token ? (
+                  {token && isCandidate && (
+                  <>
                     <li className="nav-item">
-                      <NavLink to="/login" className="nav-link">
-                        Login
+                      <NavLink to="/user/exams" className="nav-link">
+                        Pending Exams
                       </NavLink>
                     </li>
-                  ) : (
-                    <>
                     <li className="nav-item">
-                    <NavLink to="/user/exams" className="nav-link">
-                      Pending Exams
-                    </NavLink>
-                  </li>
-                    <li className="nav-item">
-                    <NavLink to="/user/examhistory" className="nav-link">
-                      Exam History
-                    </NavLink>
-                  </li>
+                      <NavLink to="/user/examhistory" className="nav-link">
+                        Exam History
+                      </NavLink>
+                    </li>
                   </>
-                  )}
+                )}
+                {!token && (
+                    <li className="nav-item">
+                    <NavLink to="/Login" className="nav-link">
+                      Login
+                    </NavLink>
+                  </li>
+                  )
+                }
                 </ul>
               </div>
             </div>
@@ -212,13 +208,12 @@ const App = () => {
               </Alert>
             ))}
           </div>
-          {examSoon !== null && ( <ExamNotification time={timer} /> ) }
+          {examSoon !== null && ( <ExamNotification data={examSoon} /> ) }
           
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/eshop" element={<EShopPage />} />
-              <Route path="/exam" element={<ExamPage />} />
               {token !== null ? (
                 <>
                   <Route path="/login" element={<HomePage />} />
@@ -242,6 +237,13 @@ const App = () => {
                    <Route path="admin/createcert" element={<HomePage />} />
                   </>
                   )}
+                  {isCandidate !== false ? (
+                    <>
+                    <Route path="/exam/:id" element={<ExamPage />} />
+                    </>
+                  ) : (
+                    <Route path="/exam/:id" element={<HomePage />} />
+                  )}
                   {/*<Route path="admin/vouchers" element={<MyExams />} />*/}
                   <Route path="cp/changecreds" element={<ChangeCreds updateUsername={updateUsername} />} />
                   <Route path="user/mycertificates" element={<MyCertificates />} />
@@ -260,6 +262,7 @@ const App = () => {
             </Routes>
           </div>
         </div>
+        </ExamContext.Provider>
         </CandidateContext.Provider>
         </RoleContext.Provider>
       </AuthContext.Provider>
