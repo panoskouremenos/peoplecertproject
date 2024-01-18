@@ -59,11 +59,19 @@ public class AuthController : ControllerBase
 			IsActive = true,
 		};
 
+
+
 		user.PasswordHash = _passwordHasher.HashPassword(user, userRegisterDto.Password);
 
 		_context.Usertbls.Add(user);
 		await _context.SaveChangesAsync();
 		return Ok();
+	}
+
+	[HttpGet]
+	public async Task<ActionResult<IEnumerable<Usertbl>>> GetUsers()
+	{
+		return await _context.Usertbls.ToListAsync();
 	}
 
 	/// <summary>
