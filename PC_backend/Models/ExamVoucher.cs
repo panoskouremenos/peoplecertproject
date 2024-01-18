@@ -9,9 +9,9 @@ public partial class ExamVoucher
 
     public int? ProductId { get; set; }
 
-    public int? CandidateId { get; set; }
+    public int CandidateId { get; set; }
 
-    public int? CertificateId { get; set; }
+    public int CertificateId { get; set; }
 
     public Guid VoucherCode { get; set; }
 

@@ -4,7 +4,7 @@
     {
         public int? ExamId { get; set; }
         public int? CandidateId { get; set; }
-        public int? CertificateId { get; set; }
+        public int CertificateId { get; set; }
         public string? CertificateTitle { get; set; }
 
         public ICollection<QuestionDto>? Questions { get; set; } = new List<QuestionDto>();

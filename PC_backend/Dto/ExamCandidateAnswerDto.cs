@@ -10,7 +10,7 @@
 
         public string? CandAnswer { get; set; }
 
-        public bool? IsCorrect { get; set; }
+        public bool IsCorrect { get; set; }
 
         //   public virtual Questiondto Question { get; set; }
 

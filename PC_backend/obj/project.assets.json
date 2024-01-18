@@ -11773,19 +11773,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\darko\\.nuget\\packages\\": {}
+    "C:\\Users\\Dimoskan\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\darko\\Desktop\\WEB PROJECTS\\17012024\\peoplecertproject\\PC_backend\\PC_backend.csproj",
+      "projectUniqueName": "D:\\Libraries\\Documents\\peoplecertproject\\PC_backend\\PC_backend.csproj",
       "projectName": "PC_backend",
-      "projectPath": "C:\\Users\\darko\\Desktop\\WEB PROJECTS\\17012024\\peoplecertproject\\PC_backend\\PC_backend.csproj",
-      "packagesPath": "C:\\Users\\darko\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\darko\\Desktop\\WEB PROJECTS\\17012024\\peoplecertproject\\PC_backend\\obj\\",
+      "projectPath": "D:\\Libraries\\Documents\\peoplecertproject\\PC_backend\\PC_backend.csproj",
+      "packagesPath": "C:\\Users\\Dimoskan\\.nuget\\packages\\",
+      "outputPath": "D:\\Libraries\\Documents\\peoplecertproject\\PC_backend\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\darko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Dimoskan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [

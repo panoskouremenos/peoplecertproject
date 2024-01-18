@@ -7,7 +7,7 @@ public partial class CandidateAddress
 {
     public int AddressId { get; set; }
 
-    public int? CandidateId { get; set; }
+    public int CandidateId { get; set; }
 
     public string? Address { get; set; }
 

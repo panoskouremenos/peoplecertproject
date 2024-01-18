@@ -4,11 +4,11 @@ namespace PC_backend.Dto
 {
     public class Examdto
     {
-        public int? CandidateId { get; set; }
+        public int CandidateId { get; set; }
 
         public DateTime DateAssigned { get; set; }
 
-        public int? CertificateId { get; set; }
+        public int CertificateId { get; set; }
 
         public int? VoucherId { get; set; }
 

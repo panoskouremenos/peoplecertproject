@@ -79,25 +79,21 @@ namespace PC_backend.Controllers
 			}
 
 			var userId = int.Parse(userIdClaim.Value);
-
-			var candidate = await _context.Candidates
-				.FirstOrDefaultAsync(c => c.UserId == userId);
-
+			var candidate = await _context.Candidates.FirstOrDefaultAsync(c => c.UserId == userId);
 			if (candidate == null)
 			{
 				return Ok(new { message = "User is not a candidate" });
 			}
 
-			int CandId = candidate.CandidateId;
-
 			var passedCertificates = _context.ExamResults
 				.Include(er => er.Exam)
-				.ThenInclude(exam => exam.Voucher)
-				.ThenInclude(voucher => voucher.Certificate)
+					.ThenInclude(exam => exam.Voucher)
+						.ThenInclude(voucher => voucher.Certificate)
 				.Where(er => er.Exam.CandidateId == candidate.CandidateId && er.Passed == true)
 				.Select(er => new
 				{
 					CertificateTitle = er.Exam.Voucher.Certificate.Title,
+					CertificateId = er.Exam.Voucher.Certificate.CertificateId, // Selecting CertificateID here
 					ExamDate = er.ResultDate,
 					FirstName = candidate.FirstName,
 					LastName = candidate.LastName,
@@ -108,7 +104,8 @@ namespace PC_backend.Controllers
 				.Select(pc => new PassedCertificateDto
 				{
 					CertificateTitle = pc.CertificateTitle,
-					ExamDate = (DateTime)pc.ExamDate,
+					CertificateId = pc.CertificateId, // Make sure this property exists in PassedCertificateDto
+					ExamDate = pc.ExamDate.HasValue ? pc.ExamDate.Value : default(DateTime),
 					FirstName = pc.FirstName,
 					LastName = pc.LastName,
 					ScorePercentage = ScoreUtility.ConvertToPercentage(pc.Score, pc.MaxScore)
@@ -118,6 +115,7 @@ namespace PC_backend.Controllers
 
 			return Ok(passedCertificates);
 		}
+
 
 		[Authorize(Roles = "1")]
 		[HttpGet("{examId}/Results")]

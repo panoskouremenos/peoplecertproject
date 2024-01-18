@@ -55,6 +55,49 @@ namespace PC_backend.Controllers
 
 			return Ok(certificateTopicMark);
 		}
+
+		[Authorize]
+		[HttpGet("GetExamReport/{certificateId}")]
+		public async Task<IActionResult> GetExamReport(int certificateId)
+		{
+			var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id");
+			if (userIdClaim == null)
+			{
+				return Unauthorized("User ID is missing.");
+			}
+
+			var userId = int.Parse(userIdClaim.Value);
+			var candidate = await _context.Candidates.FirstOrDefaultAsync(c => c.UserId == userId);
+			if (candidate == null)
+			{
+				return NotFound("Candidate not found.");
+			}
+
+			var topics = await _context.CertificateTopicMarks
+				.Where(ctm => ctm.CertificateId == certificateId)
+				.Select(ctm => new
+				{
+					TopicDesc = ctm.TopicDesc,
+					Questions = ctm.Questions.Select(q => new
+					{
+						QuestionId = q.QuestionId,
+						IsCorrect = q.ExamCandAnswers.Any(eca => eca.IsCorrect)
+					})
+				})
+				.ToListAsync();
+
+			var reportData = topics.Select(t => new
+			{
+				Topic = t.TopicDesc,
+				MaxAwardedMarks = t.Questions.Count(),
+				AwardedMarks = t.Questions.Count(q => q.IsCorrect)
+			});
+
+			// Code to generate PDF using reportData goes here
+			Console.WriteLine(reportData);
+			return Ok(reportData); // Or return the generated PDF file
+		}
+
 		//TOPIC =GET= ACTIONS END
 
 		//TOPIC =PUT= ACTIONS START

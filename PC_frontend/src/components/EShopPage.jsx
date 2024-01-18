@@ -64,7 +64,6 @@ const EShopPage = () => {
     } catch (error) {
       console.log(error);
     } finally {
-      // You can add any cleanup or additional logic here
     }
   };
   
@@ -81,22 +80,6 @@ const EShopPage = () => {
     );
   
     if (productIndex !== -1) {
-      if (examDate.trim() !== "") {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-  
-        const oneMonthFromTomorrow = new Date();
-        oneMonthFromTomorrow.setMonth(oneMonthFromTomorrow.getMonth() + 1);
-        oneMonthFromTomorrow.setDate(oneMonthFromTomorrow.getDate() + 1);
-        oneMonthFromTomorrow.setHours(0, 0, 0, 0);
-  
-        const selectedExamDate = new Date(examDate);
-        selectedExamDate.setHours(0, 0, 0, 0);
-        if (
-          selectedExamDate >= tomorrow &&
-          selectedExamDate <= oneMonthFromTomorrow
-        ) {
           setProductsToBuy((prevProducts) => {
             const updatedProducts = [...prevProducts];
             updatedProducts[productIndex].examDate = examDate;
@@ -114,18 +97,6 @@ const EShopPage = () => {
               "The examination date must be between tomorrow and at most 1 month after.",
           });
         }
-      } else {
-        newAlerts.push({
-          variant: "danger",
-          message: "Please set a valid examination date.",
-        });
-      }
-    } else {
-      newAlerts.push({
-        variant: "danger",
-        message: "Product not found.",
-      });
-    }
     setAlerts(newAlerts);
   };
   

@@ -7,7 +7,7 @@ public partial class CandidatePhotoId
 {
     public int PhotoId { get; set; }
 
-    public int? CandidateId { get; set; }
+    public int CandidateId { get; set; }
 
     public int? PhotoIdtype { get; set; }
 

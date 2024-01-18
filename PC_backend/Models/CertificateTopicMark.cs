@@ -7,7 +7,7 @@ public partial class CertificateTopicMark
 {
     public int CertificateTopicMarksId { get; set; }
 
-    public int? CertificateId { get; set; }
+    public int CertificateId { get; set; }
 
     public string? TopicDesc { get; set; }
 

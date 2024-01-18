@@ -51,9 +51,9 @@ const RedeemVoucher = () => {
             <div>
                 <DatePicker
                     selected={examDate}
-                    onChange={(date) => { console.log(date);setExamDate(date)}}
+                    onChange={(date) => {setExamDate(date)}}
                     showTimeSelect
-                    //dateFormat="Pp"
+                    dateFormat="Pp"
                 />
             </div>
             <div>

@@ -41,7 +41,7 @@ import AdminCreateCertificate from "./components/Admin/AdminCreateCertificate/Ad
 import ExamNotification from "./components/ExamNotification";
 import Voucher from "./components/Admin/VoucherList";
 import PendingExams from "./components/User/PendingExams";
-
+import ProductRooster from "./components/Admin/ProductRooster"
 const App = () => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -94,7 +94,7 @@ const App = () => {
     }finally{
       setTimeout(function(){
         fetchUserExamSoon(token); 
-      },1000);
+      },60000);
     }
   }
 
@@ -166,7 +166,7 @@ const App = () => {
                     </NavLink>
                   </li>
 
-                  {token && isCandidate && (
+                  {token &&  (
                   <>
                     <li className="nav-item">
                       <NavLink to="/user/exams" className="nav-link">
@@ -235,6 +235,8 @@ const App = () => {
                   <Route path="admin/candidates/:id" element={<HomePage />} />
                   <Route path="admin/vouchers" element={<HomePage />} />
                    <Route path="admin/createcert" element={<HomePage />} />
+                   <Route path="admin/productrooster" element={<ProductRooster />} />
+                   
                   </>
                   )}
                   {isCandidate !== false ? (
@@ -249,6 +251,8 @@ const App = () => {
                   <Route path="user/mycertificates" element={<MyCertificates />} />
                   <Route path="user/examhistory" element={<MyExams />} />
                   <Route path="user/exams" element={<PendingExams />} />
+
+                  
 
 
                   

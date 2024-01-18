@@ -6,6 +6,6 @@
 
         public DateTime DateAssigned { get; set; }
 
-        public int? CertificateId { get; set; }
+        public int CertificateId { get; set; }
     }
 }

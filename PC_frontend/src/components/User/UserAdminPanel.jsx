@@ -17,6 +17,10 @@ const AdminDashboard = () => {
           <h2>User Operation</h2>
           <button className="btn btn-info mb-2" onClick={() => navigate('/admin/userlist')}>View all users</button>
         </div>
+        <div className="col-md-6">
+          <h2>Product Operation</h2>
+          <button className="btn btn-info mb-2" onClick={() => navigate('/admin/productrooster')}>View all users</button>
+        </div>
 
         <div className="col-md-6">
           <h2>Certificates Operations</h2>

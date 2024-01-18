@@ -13,7 +13,7 @@ public partial class ExamCandAnswer
 
     public string? CandAnswer { get; set; }
 
-    public bool? IsCorrect { get; set; }
+    public bool IsCorrect { get; set; }
 
     public virtual Question? Question { get; set; }
 

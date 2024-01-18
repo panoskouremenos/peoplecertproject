@@ -432,8 +432,6 @@ const CandidateDetails = () => {
             <p>Native Language: <b>{candidate.nativeLanguage}</b></p>
             <p>Birth Date: <b>{formatDate(candidate.birthDate)}</b></p>
             <p>Photo ID Type: <b>{candidate.candidatePhotoIds?.[0]?.photoIdtype ? legaldocOptions[candidate.candidatePhotoIds[0]?.photoIdtype] : 'N/A'}</b></p>
-
-            <p>Photo ID Type: <b>{legaldocOptions[candidate.candidatePhotoIds[0]?.photoIdtype]}</b></p>
             <p>Photo ID Number: <b>{candidate.candidatePhotoIds[0].photoIdnumber}</b></p>
             <p>Photo ID Issue Date: <b>{formatDate(candidate.candidatePhotoIds[0].photoIdissueDate)}</b></p>
           </div>

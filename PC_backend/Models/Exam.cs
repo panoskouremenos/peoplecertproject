@@ -7,11 +7,11 @@ public partial class Exam
 {
     public int ExamId { get; set; }
 
-    public int? CandidateId { get; set; }
+    public int CandidateId { get; set; }
 
     public int? VoucherId { get; set; }
 
-    public int? CertificateId { get; set; }
+    public int CertificateId { get; set; }
 
     public DateTime DateAssigned { get; set; }
 
@@ -21,5 +21,5 @@ public partial class Exam
 
     public virtual ExamVoucher? Voucher { get; set; }
 
-    public virtual Certificate? Certificate { get; set; }
+    public virtual Certificate Certificate { get; set; }
 }

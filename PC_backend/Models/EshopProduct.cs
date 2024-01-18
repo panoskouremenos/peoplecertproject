@@ -7,7 +7,7 @@ public partial class EshopProduct
 {
     public int ProductId { get; set; }
 
-    public int? CertificateId { get; set; }
+    public int CertificateId { get; set; }
 
     public string? ProductName { get; set; }
 
