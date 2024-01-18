@@ -2,6 +2,7 @@ import React, { useState, useEffect , useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import AuthContext from '../AuthContext';
 import ExamContext from '../ExamContext';
+import AlertContext from '../AlertContext';
 
 const ExamPage = () => {
   const [questions, setQuestions] = useState([]);
@@ -9,6 +10,7 @@ const ExamPage = () => {
   const { token } = useContext(AuthContext);
   const { id } = useParams();
   const { examSoon , setIsExamSoon } = useContext(ExamContext);
+  const { Alerts , setAlerts } = useContext(AlertContext);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -52,45 +54,77 @@ const ExamPage = () => {
     setActiveQuestion(index);
   }
 
-  const handlePostExam = async() => {
-    const formattedExam = questions.map((question) => {
-      const { topicDesc, questionId, questionText, possibleAnswers, checkedAnswer } = question;
+  const validateAnswer = (examData, answer) => {
+    const certificateTopic = examData.certificate.certificateTopicMarks.find(
+      (topic) => topic.topicDesc === answer.topicDesc
+    );
   
-      const possibleAnswersArray = possibleAnswers.split(', ');
+    if (!certificateTopic) {
+      return false;
+    }
   
-      return {
-        topicDesc,
-        questionId,
-        questionText,
-        possibleAnswers,
-        candAnswer: possibleAnswersArray[checkedAnswer]
-      };
-    });
-    console.log(formattedExam);
-try {
-  const response = await fetch(`https://localhost:5888/api/ExamCandiAnswer/ProcessAnswers`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(
-      formattedExam
-    )
-  });
+    const question = certificateTopic.questions.find(
+      (q) => q.questionId === answer.questionId
+    );
+  
+    if (!question) {
+      return false;
+    }
+  
+    const correctAnswers = question.possibleAnswers.split(',').map((a) => a.trim());
+    return correctAnswers.includes(answer.candAnswer);
+  };
+  
 
-  if(response.ok){
-    alert('We did it bro');
-  }else{
-    alert('We didnt do it bro =( .');
-  }
-  }catch(error){
-    alert(error);
-  }finally{
-
-  }
-
-}
+  const handlePostExam = async () => {
+    try {
+      const response = await fetch(`https://localhost:5888/api/Exams/${id}/Questions`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        let totalPoints = 0;
+  
+        const formattedExam = questions.map((question) => {
+          const { topicDesc, questionId, questionText, possibleAnswers, checkedAnswer } = question;
+  
+          const possibleAnswersArray = possibleAnswers.split(', ');
+  
+          return {
+            topicDesc,
+            questionId,
+            questionText,
+            possibleAnswers,
+            candAnswer: possibleAnswersArray[checkedAnswer]
+          };
+        });
+  
+        for (let i = 0; i < formattedExam.length; i++) {
+          const isAnswerCorrect = validateAnswer(result, formattedExam[i]);
+  
+          if (isAnswerCorrect) {
+            // You can assign points for each correct answer
+            const pointsForCorrectAnswer = 1;
+            totalPoints += pointsForCorrectAnswer;
+          }
+        }
+  
+        setAlerts([{ variant : "danger" , message : `Total Points: ${totalPoints}`}]);
+        console.log(result);
+      } else {
+        alert('Failed to fetch exam questions');
+      }
+    } catch (error) {
+      alert(error);
+    } finally {
+      // Any cleanup or finalization code can go here
+    }
+  };
   
   const fetchExamQuestions = async (id) => {
     try {

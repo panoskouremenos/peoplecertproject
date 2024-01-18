@@ -41,7 +41,9 @@ import AdminCreateCertificate from "./components/Admin/AdminCreateCertificate/Ad
 import ExamNotification from "./components/ExamNotification";
 import Voucher from "./components/Admin/VoucherList";
 import PendingExams from "./components/User/PendingExams";
-import ProductRooster from "./components/Admin/ProductRooster"
+import ProductRooster from "./components/User/ProductRooster"
+import UserManagement from "./components/User/UserManagement";
+
 const App = () => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -209,7 +211,6 @@ const App = () => {
             ))}
           </div>
           {examSoon !== null && ( <ExamNotification data={examSoon} /> ) }
-          
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/register" element={<RegisterPage />} />
@@ -226,6 +227,7 @@ const App = () => {
                   <Route path="admin/candidates/:id" element={<Candidatedetails />} />
                   <Route path="admin/vouchers" element={<Voucher />} />
                   <Route path="admin/createcert" element={<AdminCreateCertificate />} />
+                  <Route path="admin/productrooster" element={<ProductRooster />} />
                   </>
                   ) : (
                   <>
@@ -235,7 +237,7 @@ const App = () => {
                   <Route path="admin/candidates/:id" element={<HomePage />} />
                   <Route path="admin/vouchers" element={<HomePage />} />
                    <Route path="admin/createcert" element={<HomePage />} />
-                   <Route path="admin/productrooster" element={<ProductRooster />} />
+                   <Route path="admin/productrooster" element={<HomePage />} />
                    
                   </>
                   )}
