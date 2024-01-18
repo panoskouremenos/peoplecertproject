@@ -245,6 +245,7 @@ html,body{
   background-color: #fefefe;
   border-radius: 50%;
   border: 1px solid #3b3b3b;
+  margin-top: 3px;
 }
 
 #exampage .options:hover input ~ .checkmark {
@@ -305,12 +306,12 @@ html,body{
   font-family: Cursive !important;
 }
 
-.isnotchecked{
+.notchecked{
   background:white;
   color:black !important;
 }
 
-.ischecked{
+.checked{
   background-color: #c73131;
   color: #fff9f9;
   border: 1px solid crimson;
