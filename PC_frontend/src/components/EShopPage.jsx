@@ -51,7 +51,6 @@ const EShopPage = () => {
         const result = await response.json();
         console.log(result);
   
-        // Update the state based on purchased product IDs
         const updatedProducts = initialProductsToBuy.map(product => (
           result.includes(product.productId) ? { ...product, isAlreadyBought: true } : product
         ));

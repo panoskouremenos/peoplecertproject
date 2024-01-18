@@ -66,12 +66,11 @@ const HomePage = () => {
     padding: '1%',
     backgroundPosition: 'left',
     backgroundRepeat: 'no-repeat',
-    // display: 'flex', // Added to make content flex
-    alignItems: 'center', // Added to center content vertically
+    alignItems: 'center', 
   }}
 >
   <img
-    src="src/Images/favicons/email.png" // Replace with the correct path to your favicon
+    src="src/Images/favicons/email.png" 
     alt="Favicon"
     style={{ marginRight: '10px', width: '20px', height: '25px' }}
   />
@@ -79,7 +78,6 @@ const HomePage = () => {
 </p>
 
 </div>
-
       {/* <p style={{backgroundColor:'red', textAlign:'end', width: '167%',padding: '3%',
       backgroundPosition: 'left', // Center the background image
       backgroundRepeat: 'no-repeat', backgroundImage: 'url("src/Images/favicons/phone.png")'}}></p> */}

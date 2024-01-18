@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import html2pdf from 'html2pdf.js';
-import AuthContext from '../../AuthContext'; // Adjust path as necessary
+import AuthContext from '../../AuthContext';
 
 const formatDate = (dateString) => {
     if (!dateString) return '';

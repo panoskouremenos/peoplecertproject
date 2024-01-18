@@ -58,10 +58,7 @@ const ExamHistory = () => {
 
   
   const generatePDF = (examReport) => {
-    // Create a new div element
     const pdfContent = document.createElement("div");
-  
-    // Add title and table structure to the div
     const certificateTitle = examReport[0].certificateTitle;
     pdfContent.innerHTML = `<h3>${certificateTitle} Exam Report</h3>`;
     pdfContent.innerHTML += `
@@ -79,7 +76,6 @@ const ExamHistory = () => {
           </tr>`).join("")}
       </table>`;
   
-    // Use html2pdf to generate the PDF
     html2pdf().from(pdfContent).toPdf().save(`${certificateTitle}_exam_report.pdf`);
   };
 

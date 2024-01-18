@@ -56,7 +56,6 @@ const ExamPage = () => {
     const formattedExam = questions.map((question) => {
       const { topicDesc, questionId, questionText, possibleAnswers, checkedAnswer } = question;
   
-      // Split the possible answers into an array
       const possibleAnswersArray = possibleAnswers.split(', ');
   
       return {

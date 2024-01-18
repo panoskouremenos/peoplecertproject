@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AuthContext from '../../AuthContext';
+import AlertContext from '../../AlertContext';
 import locationData from '../../json/countries+states+cities.json';
 import CandidateContext from '../../CandidateContext';
 
@@ -13,6 +14,7 @@ const formatDate = (dateString) => {
 const CandidateDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { Alerts , setAlerts } = useContext(AlertContext);
   const { token } = useContext(AuthContext);
   const { isCandidate } = useContext(CandidateContext);
   const [candidate, setCandidate] = useState(null);
@@ -88,7 +90,6 @@ const CandidateDetails = () => {
     deleteButton: "btn btn-danger"
   };
 
-  //The options could be placed on database but there is no need to overcomplicate.
   const genderOptions = {
     false: "Male",
     true: "Female",
@@ -201,7 +202,7 @@ const CandidateDetails = () => {
     if (selectedCountry === "" || selectedCountry === "Select a Country" ||
       selectedState === "" || selectedState === "Select a State" ||
       selectedCity === "" || selectedCity === "Select a City") {
-      alert("Please select a valid country, state, and city.");
+        setAlerts([{ variant : "danger" , message : "Please select a valid country, state, and city."}]);
       return;
     }
     try {

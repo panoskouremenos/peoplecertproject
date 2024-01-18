@@ -1,19 +1,9 @@
 import React, { useState } from "react";
 import { Form } from 'react-bootstrap';
-import DatePicker from 'react-datepicker'; 
 import "../Eshop.css";
 
 const EShop = ({ eshop, onadd, onremove }) => {
     const [examDate, setExamDate] = useState('');
-    const maxDate = new Date();
-    maxDate.setMonth(maxDate.getMonth() + 1);
-    const maxDateISOString = maxDate.toISOString().slice(0, 16);
-
-    const handleDateChange = (e) => {
-        const selectedDate = new Date(e.target.value + ":00"); 
-        const greekDate = new Date(selectedDate.toLocaleString('en-US', { timeZone: 'Europe/Athens' }));
-        setExamDate(greekDate.toISOString().slice(0, 16));
-    };
 
     return (
         <>
@@ -22,14 +12,11 @@ const EShop = ({ eshop, onadd, onremove }) => {
                     <div className="card-body">
                         <h5 className="card-title">{eshop.productName}</h5>
                         <p className="card-text">{eshop.description}</p>
-                        <DatePicker
-                            selected={examDate}
-                            onChange={(date) => {setExamDate(date)}}
-                            showTimeSelect
-                            dateFormat="Pp"
+                        <input
+                            type="datetime-local"
+                            value={examDate}
+                            onChange={(e) => setExamDate(e.target.value)}
                         />
-
-
                         <p className="card-price"><strong>${eshop.price}</strong></p>
                         <p className="card-availability">Available Stock: {eshop.availableStock}</p>
                         {eshop.inBasket === false ?

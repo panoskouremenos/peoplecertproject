@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
-import AuthContext from '../../AuthContext'; // Adjust the import path as needed
+import AuthContext from '../../AuthContext'; 
 
 const ChangeCreds = ({ updateUsername }) => {
-  const { token } = useContext(AuthContext); // Assuming you have AuthContext set up for token
+  const { token } = useContext(AuthContext); 
 
   const [username, setUsername] = useState('');
   const [repeatUsername, setRepeatUsername] = useState('');
